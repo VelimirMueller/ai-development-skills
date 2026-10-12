@@ -2,11 +2,41 @@
   "group": "flagship",
   "version": "v2",
   "dividers": [
-    { "key": "what", "index": "01", "title": "WHAT IT DOES", "caption": "Judgment, executable.", "art": "strip-flagship-1" },
-    { "key": "start", "index": "02", "title": "QUICK START", "caption": "Two commands. One wizard.", "art": "strip-flagship-2" },
-    { "key": "how", "index": "03", "title": "HOW IT WORKS", "caption": "Audit. Apply. Verify. No-op.", "art": "strip-flagship-3" },
-    { "key": "usage", "index": "04", "title": "USAGE", "caption": "Seventy-three skills, condensed.", "art": "strip-flagship-4" },
-    { "key": "status", "index": "05", "title": "STATUS", "caption": "One version, everywhere.", "art": "strip-flagship-5" }
+    {
+      "key": "what",
+      "index": "01",
+      "title": "WHAT IT DOES",
+      "caption": "Judgment, executable.",
+      "art": "strip-flagship-1"
+    },
+    {
+      "key": "start",
+      "index": "02",
+      "title": "QUICK START",
+      "caption": "Two commands. One wizard.",
+      "art": "strip-flagship-2"
+    },
+    {
+      "key": "how",
+      "index": "03",
+      "title": "HOW IT WORKS",
+      "caption": "Audit. Apply. Verify. No-op.",
+      "art": "strip-flagship-3"
+    },
+    {
+      "key": "usage",
+      "index": "04",
+      "title": "USAGE",
+      "caption": "Seventy-three skills, condensed.",
+      "art": "strip-flagship-4"
+    },
+    {
+      "key": "status",
+      "index": "05",
+      "title": "STATUS",
+      "caption": "One version, everywhere.",
+      "art": "strip-flagship-5"
+    }
   ],
   "panels": [
     {
@@ -14,10 +44,22 @@
       "type": "stats",
       "title": "The set in numbers",
       "items": [
-        { "value": "73", "label": "skills across the set" },
-        { "value": "7", "label": "plugins, one per domain" },
-        { "value": "1", "label": "marketplace: frontendskills" },
-        { "value": "0", "label": "changes on a second run" }
+        {
+          "value": "73",
+          "label": "skills across the set"
+        },
+        {
+          "value": "7",
+          "label": "plugins, one per domain"
+        },
+        {
+          "value": "1",
+          "label": "marketplace: frontendskills"
+        },
+        {
+          "value": "0",
+          "label": "changes on a second run"
+        }
       ]
     },
     {
@@ -25,9 +67,18 @@
       "type": "cards",
       "title": "Three properties of a tool",
       "items": [
-        { "title": "Audit-first", "text": "Each skill reads what is already there and applies only the missing move. Run it twice: the second run is a no-op." },
-        { "title": "Seams, not vendor calls", "text": "fetcher, captureError, env and queryKeys sit behind one point each. A vendor swap is a one-file change." },
-        { "title": "Profile, not assumptions", "text": "The wizard writes .claude/stack-profile.md. Every skill reads it first, so defaults stay defaults." }
+        {
+          "title": "Audit-first",
+          "text": "Each skill reads what is already there and applies only the missing move. Run it twice: the second run is a no-op."
+        },
+        {
+          "title": "Seams, not vendor calls",
+          "text": "fetcher, captureError, env and queryKeys sit behind one point each. A vendor swap is a one-file change."
+        },
+        {
+          "title": "Profile, not assumptions",
+          "text": "The wizard writes .claude/stack-profile.md. Every skill reads it first, so defaults stay defaults."
+        }
       ]
     },
     {
@@ -46,23 +97,480 @@
       "title": "One ask, left to right",
       "caption": "Run it twice and the second run is a no-op.",
       "nodes": [
-        { "title": "YOU ASK", "sub": "add state management" },
-        { "title": "CLAUDE MATCHES", "sub": "the Use when line" },
-        { "title": "AUDIT", "sub": "what is already there?", "hot": true },
-        { "title": "APPLY", "sub": "only the missing move" },
-        { "title": "VERIFY", "sub": "typecheck, tests" }
+        {
+          "title": "YOU ASK",
+          "sub": "add state management"
+        },
+        {
+          "title": "CLAUDE MATCHES",
+          "sub": "the Use when line"
+        },
+        {
+          "title": "AUDIT",
+          "sub": "what is already there?",
+          "hot": true
+        },
+        {
+          "title": "APPLY",
+          "sub": "only the missing move"
+        },
+        {
+          "title": "VERIFY",
+          "sub": "typecheck, tests"
+        }
       ]
     },
     {
       "key": "status",
       "type": "status",
       "rows": [
-        { "label": "Marketplace", "value": "frontendskills", "state": "ok" },
-        { "label": "Version", "value": "v0.7.1 · one version everywhere", "state": "ok" },
-        { "label": "Plugins", "value": "7 · 73 skills", "state": "ok" },
-        { "label": "Validate", "value": "bash scripts/validate.sh", "state": "ok" },
-        { "label": "CI", "value": "validate on every pull request", "state": "ok" }
+        {
+          "label": "Marketplace",
+          "value": "frontendskills",
+          "state": "ok"
+        },
+        {
+          "label": "Version",
+          "value": "v0.7.1 · one version everywhere",
+          "state": "ok"
+        },
+        {
+          "label": "Plugins",
+          "value": "7 · 73 skills",
+          "state": "ok"
+        },
+        {
+          "label": "Validate",
+          "value": "bash scripts/validate.sh",
+          "state": "ok"
+        },
+        {
+          "label": "CI",
+          "value": "validate on every pull request",
+          "state": "ok"
+        }
       ]
+    },
+    {
+      "key": "lead",
+      "type": "lead",
+      "title": "ABOUT",
+      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 73 skills across 7 plugins, shipped as the Claude Code marketplace `frontendskills`. It does not write your app. It tells you where the seams go."
+    },
+    {
+      "key": "what",
+      "type": "notes",
+      "title": "WHAT YOU GET",
+      "columns": 2,
+      "items": [
+        {
+          "lead": "One marketplace, MIT",
+          "text": "Ships as the Claude Code marketplace `frontendskills`: 73 skills in 7 plugins, licensed MIT."
+        },
+        {
+          "lead": "Stacks it covers",
+          "text": "React 19 / Vue 3 · Hono / Go / FastAPI · Supabase / Next 16 · Vercel / Hetzner / IONOS · Rust + Bevy."
+        },
+        {
+          "lead": "No change on a second run",
+          "text": "Reads your stack profile first, applies only the missing move, and changes nothing on a second run."
+        },
+        {
+          "lead": "Judgment, not dogma",
+          "text": "Every rule ships with its **when to deviate**. The aim is judgment, not dogma."
+        }
+      ]
+    },
+    {
+      "key": "setup",
+      "type": "notes",
+      "title": "AFTER THE TWO COMMANDS",
+      "columns": 2,
+      "items": [
+        {
+          "lead": "Run the wizard",
+          "text": "Add the marketplace, install `devcore`, then ask Claude to \"set up my stack profile\". The wizard detects the stack, asks only the gaps, writes `.claude/stack-profile.md`, and prints the plugins to enable."
+        },
+        {
+          "lead": "devcore comes along",
+          "text": "Every plugin depends on `devcore`, so installing any of them installs it too."
+        },
+        {
+          "lead": "Small context cost",
+          "text": "Each enabled skill keeps its one-line `Use when` description in context, and loads in full only when that line matches."
+        },
+        {
+          "lead": "Install what you use",
+          "text": "Install only the plugins your stack uses; the rest cost nothing."
+        },
+        {
+          "lead": "One step per plugin",
+          "text": "Claude Code 2.1.275 or later adds the marketplace on the way. See `REFERENCE.md`."
+        },
+        {
+          "lead": "Update",
+          "text": "Run `/plugin marketplace update frontendskills`."
+        }
+      ]
+    },
+    {
+      "key": "anatomy",
+      "type": "flow",
+      "title": "Inside one run",
+      "caption": "devcore: every other plugin depends on it.",
+      "nodes": [
+        {
+          "title": "SKILL.md",
+          "sub": "One of 73. Claude matches its Use when line."
+        },
+        {
+          "title": "stack-profile.md",
+          "sub": "Written once. The skill reads it first.",
+          "hot": true
+        },
+        {
+          "title": "YOUR REPO",
+          "sub": "1 audit, 2 apply, 3 verify. Second run = no-op."
+        }
+      ]
+    },
+    {
+      "key": "how",
+      "type": "notes",
+      "title": "THE RULES",
+      "items": [
+        {
+          "lead": "Audit-first",
+          "text": "Each skill inspects what is already there and applies only the missing move. A second run is a no-op."
+        },
+        {
+          "lead": "Seams carry across the chain",
+          "text": "The router shares the `queryClient` with loaders, guards, forms and realtime. One OpenTelemetry pipeline ships every service's telemetry to one collector."
+        },
+        {
+          "lead": "Profile, not assumptions",
+          "text": "Every skill reads `.claude/stack-profile.md` first, so the author's defaults (pnpm, Biome, tests in `tests/`) stay defaults."
+        },
+        {
+          "lead": "Full diagram",
+          "text": "The full diagram and the composition chains are in `REFERENCE.md`."
+        }
+      ]
+    },
+    {
+      "key": "plugins",
+      "type": "commands",
+      "title": "THE PLUGINS · EVERY SKILL IS IN REFERENCE.MD",
+      "rows": [
+        {
+          "cmd": "devcore@frontendskills",
+          "text": "The stack-profile wizard, security and toolchain audits, commit and PR writing. **6 skills.**"
+        },
+        {
+          "cmd": "frontendskills@frontendskills",
+          "text": "Vite-SPA lifecycle (React 19 / Vue 3) plus landing & content pages. **26 + 5 skills.**"
+        },
+        {
+          "cmd": "backendskills@frontendskills",
+          "text": "Hono / Go / FastAPI services, Supabase, Next 16. **15 skills.**"
+        },
+        {
+          "cmd": "infraskills@frontendskills",
+          "text": "Containers, OpenTofu, deploys, secrets, OTel collector. **8 skills.**"
+        },
+        {
+          "cmd": "cliskills@frontendskills",
+          "text": "Command-line tools and the dev toolchain. **3 skills.**"
+        },
+        {
+          "cmd": "aiskills@frontendskills",
+          "text": "LLM seams, RAG, evals, MCP servers. **5 skills.**"
+        },
+        {
+          "cmd": "gameskills@frontendskills",
+          "text": "Rust + Bevy games. **5 skills.**"
+        }
+      ]
+    },
+    {
+      "key": "team",
+      "type": "notes",
+      "title": "TEAM SETUP AND VALIDATION",
+      "columns": 2,
+      "items": [
+        {
+          "lead": "Share with the team",
+          "text": "Commit the same setup to the project's `.claude/settings.json`, so everyone who trusts the folder gets the skills. The exact JSON is in `REFERENCE.md`."
+        },
+        {
+          "lead": "One profile per repo",
+          "text": "Run the wizard once per repo and commit the resulting `.claude/stack-profile.md`."
+        },
+        {
+          "lead": "Validate",
+          "text": "`bash scripts/validate.sh` checks every marketplace entry, the shared version, catalogue ownership, every `SKILL.md`, and every relative `.md` link under `skills/`."
+        },
+        {
+          "lead": "CI",
+          "text": "CI runs the same script on every pull request."
+        }
+      ]
+    },
+    {
+      "key": "reading",
+      "type": "commands",
+      "title": "FURTHER READING",
+      "rows": [
+        {
+          "cmd": "RATIONALE.md",
+          "text": "The design narrative: every load-bearing decision as **X over Y, for Z**."
+        },
+        {
+          "cmd": "CONTRIBUTING.md",
+          "text": "The house style, and how to add a skill that fits."
+        },
+        {
+          "cmd": "CHANGELOG.md",
+          "text": "What landed, and when."
+        },
+        {
+          "cmd": "REFERENCE.md",
+          "text": "The full catalogue, install commands and run example."
+        },
+        {
+          "cmd": "skills/core/_shared/stack-profile.md",
+          "text": "The schema every skill reads first, and its precedence."
+        },
+        {
+          "cmd": "skills/core/_shared/tech-radar.md",
+          "text": "The Adopt/Hold lines the defaults come from."
+        },
+        {
+          "cmd": "skills/core/_shared/security-baseline.md",
+          "text": "The shared security bar behind `audit-security` and `harden-backend`."
+        },
+        {
+          "cmd": "skills/core/_shared/audience.md",
+          "text": "The audience contract: one text the junior can follow, the senior can verify, the CTO can skim."
+        },
+        {
+          "cmd": "skills/frontend/_shared/architecture.md",
+          "text": "The seam map: how one `queryClient` threads the whole app."
+        },
+        {
+          "cmd": "skills/frontend/_shared/fetcher.md",
+          "text": "The one canonical `fetcher`, base and auth versions."
+        },
+        {
+          "cmd": "skills/backend/_shared/service-layout.md",
+          "text": "One layering standard for TypeScript, Go, and Python."
+        },
+        {
+          "cmd": "skills/landing/_shared/page-types.md",
+          "text": "The public-page gate and the priority inversion."
+        }
+      ]
+    },
+    {
+      "key": "release",
+      "type": "notes",
+      "title": "RELEASE",
+      "columns": 2,
+      "items": [
+        {
+          "lead": "v0.7.1",
+          "text": "One marketplace, seven plugins, 73 skills."
+        },
+        {
+          "lead": "Built and run",
+          "text": "Every code block in the catalogues was built and run in scratch projects on 2026-10-09. Anything not run is labelled unverified in place."
+        },
+        {
+          "lead": "Version floors",
+          "text": "Versions are floors in each catalogue's `_shared/stack-versions.md`."
+        },
+        {
+          "lead": "Validate",
+          "text": "`bash scripts/validate.sh` exits 0 when every rule passes. Changes land in `CHANGELOG.md`."
+        }
+      ]
+    },
+    {
+      "key": "links",
+      "type": "buttons",
+      "items": [
+        {
+          "label": "Reference",
+          "sub": "REFERENCE.md",
+          "href": "REFERENCE.md"
+        },
+        {
+          "label": "Rationale",
+          "sub": "RATIONALE.md",
+          "href": "RATIONALE.md"
+        },
+        {
+          "label": "Contributing",
+          "sub": "CONTRIBUTING.md",
+          "href": "CONTRIBUTING.md"
+        },
+        {
+          "label": "Stack profile",
+          "sub": "skills/core/_shared",
+          "href": "skills/core/_shared/stack-profile.md"
+        },
+        {
+          "label": "Tech radar",
+          "sub": "skills/core/_shared",
+          "href": "skills/core/_shared/tech-radar.md"
+        },
+        {
+          "label": "Security baseline",
+          "sub": "skills/core/_shared",
+          "href": "skills/core/_shared/security-baseline.md"
+        },
+        {
+          "label": "Audience",
+          "sub": "skills/core/_shared",
+          "href": "skills/core/_shared/audience.md"
+        },
+        {
+          "label": "Architecture",
+          "sub": "skills/frontend/_shared",
+          "href": "skills/frontend/_shared/architecture.md"
+        },
+        {
+          "label": "Fetcher",
+          "sub": "skills/frontend/_shared",
+          "href": "skills/frontend/_shared/fetcher.md"
+        },
+        {
+          "label": "Service layout",
+          "sub": "skills/backend/_shared",
+          "href": "skills/backend/_shared/service-layout.md"
+        },
+        {
+          "label": "Page types",
+          "sub": "skills/landing/_shared",
+          "href": "skills/landing/_shared/page-types.md"
+        },
+        {
+          "label": "Changelog",
+          "sub": "CHANGELOG.md · v0.7.1",
+          "href": "CHANGELOG.md"
+        },
+        {
+          "label": "Claude Code",
+          "sub": "plugins · claude.com",
+          "href": "https://www.claude.com"
+        },
+        {
+          "label": "MIT License",
+          "sub": "LICENSE · 2026 Velimir Mueller",
+          "href": "LICENSE"
+        },
+        {
+          "label": "GitHub",
+          "sub": "VelimirMueller",
+          "href": "https://github.com/VelimirMueller"
+        },
+        {
+          "label": "Plain text",
+          "sub": "show copyable commands"
+        }
+      ]
+    },
+    {
+      "key": "footer",
+      "type": "footer",
+      "studio": "VM. studio / flagship",
+      "text": "open source · look per vm-brand playbook · MIT (c) 2026 Velimir Mueller",
+      "eof": "-- EOF -- opinions, packaged --"
     }
-  ]
+  ],
+  "readme": {
+    "hero_alt": "claude-skills. Opinions, packaged. Stable, v0.7.1. 73 skills in 7 plugins, one marketplace.",
+    "items": [
+      "lead",
+      "stats",
+      "divider:what",
+      "features",
+      "what",
+      "divider:start",
+      "start",
+      {
+        "details": "links",
+        "chip": 16,
+        "code": [
+          [
+            "text",
+            "/plugin marketplace add VelimirMueller/claude-skills\n/plugin install devcore@frontendskills\n/plugin marketplace update frontendskills"
+          ]
+        ]
+      },
+      "setup",
+      "divider:how",
+      "flow",
+      "anatomy",
+      "how",
+      "divider:usage",
+      "plugins",
+      "team",
+      "reading",
+      {
+        "buttons": "links",
+        "only": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "buttons": "links",
+        "only": [
+          4,
+          5,
+          6
+        ]
+      },
+      {
+        "buttons": "links",
+        "only": [
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "buttons": "links",
+        "only": [
+          10,
+          11,
+          12
+        ]
+      },
+      "divider:status",
+      "status",
+      "release",
+      {
+        "details": "links",
+        "chip": 16,
+        "code": [
+          [
+            "bash",
+            "bash scripts/validate.sh   # exit 0: every rule passes"
+          ]
+        ]
+      },
+      {
+        "buttons": "links",
+        "only": [
+          13,
+          14,
+          15
+        ]
+      },
+      "footer"
+    ]
+  }
 }
