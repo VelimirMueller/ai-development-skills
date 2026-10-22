@@ -41,6 +41,9 @@ TOP_ENTRY=$(grep -m1 -Eo '^## \[[^]]+\]' CHANGELOG.md || true)
 [ "$TOP_ENTRY" = "## [$VERSION]" ] || fail "CHANGELOG.md top entry is '$TOP_ENTRY', expected '## [$VERSION]'"
 # README v3 (vm-brand B-49): the status sits in a panel; its alt text carries the version
 grep -q "v$VERSION\. " README.md || fail "README.md status panel does not say 'v$VERSION.'"
+# VERSION is the declared version ops-control reads; vm-brand.json status shows it
+[ "$(tr -d '[:space:]' < VERSION)" = "$VERSION" ] || fail "VERSION does not say $VERSION"
+jq -e --arg v "v$VERSION" '.status | endswith($v)' vm-brand.json >/dev/null || fail "vm-brand.json status does not end in v$VERSION"
 
 # 1c. Every catalogue that holds skills belongs to exactly one plugin, and every listed dir exists
 #     (Claude Code discovers <dir>/<name>/SKILL.md under each listed dir; an unlisted catalogue ships zero skills)
