@@ -1,21 +1,21 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/banner/hero-v2-light.svg">
-  <img alt="claude-development-skills. Opinions, packaged. Stable, v0.8.0. 80 skills in 8 plugins, one marketplace." src="assets/banner/hero-v2-dark.svg" width="100%">
+  <img alt="claude-development-skills. Opinions, packaged. Stable, v0.9.0. 81 skills in 8 plugins, one marketplace." src="assets/banner/hero-v2-dark.svg" width="100%">
 </picture>
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/lead-v2-light.svg">
-  <img alt="Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 80 skills across 8 plugins, shipped as the Claude Code marketplace claude-development-skills. It does not write your app. It tells you where the seams go." src="assets/readme/lead-v2-dark.svg" width="100%">
+  <img alt="Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 81 skills across 8 plugins, shipped as the Claude Code marketplace claude-development-skills. It does not write your app. It tells you where the seams go." src="assets/readme/lead-v2-dark.svg" width="100%">
 </picture>
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/stats-v2-light.svg">
-  <img alt="80 skills across the set. 8 plugins, one per domain. 1 marketplace: claude-development-skills. 0 changes on a second run" src="assets/readme/stats-v2-dark.svg" width="100%">
+  <img alt="81 skills across the set. 8 plugins, one per domain. 1 marketplace: claude-development-skills. 0 changes on a second run" src="assets/readme/stats-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -35,7 +35,7 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/what-v2-light.svg">
-  <img alt="One marketplace, MIT: Ships as the Claude Code marketplace claude-development-skills: 80 skills in 8 plugins, licensed MIT. Stacks it covers: React 19 / Vue 3 · Hono / Go / FastAPI · Supabase / Next 16 · Vercel / Hetzner / IONOS · Rust + Bevy. No change on a second run: Reads your stack profile first, applies only the missing move, and changes nothing on a second run. Judgment, not dogma: Every rule ships with its when to deviate. The aim is judgment, not dogma" src="assets/readme/what-v2-dark.svg" width="100%">
+  <img alt="One marketplace, MIT: Ships as the Claude Code marketplace claude-development-skills: 81 skills in 8 plugins, licensed MIT. Stacks it covers: React 19 / Vue 3 · Hono / Go / FastAPI · Supabase / Next 16 · Vercel / Hetzner / IONOS · Rust + Bevy. No change on a second run: Reads your stack profile first, applies only the missing move, and changes nothing on a second run. Judgment, not dogma: Every rule ships with its when to deviate. The aim is judgment, not dogma" src="assets/readme/what-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -174,14 +174,14 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/status-v2-light.svg">
-  <img alt="Marketplace: claude-development-skills. Version: v0.8.0 · one version everywhere. Plugins: 8 · 80 skills. Validate: bash scripts/validate.sh. CI: validate on every pull request" src="assets/readme/status-v2-dark.svg" width="100%">
+  <img alt="Marketplace: claude-development-skills. Version: v0.9.0 · one version everywhere. Plugins: 8 · 81 skills. Validate: bash scripts/validate.sh. CI: validate on every pull request" src="assets/readme/status-v2-dark.svg" width="100%">
 </picture>
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/release-v2-light.svg">
-  <img alt="v0.8.0: One marketplace, eight plugins, 80 skills. Built and run: Every code block in the catalogues was built and run in scratch projects on 2026-10-09. Anything not run is labelled unverified in place. Version floors: Versions are floors in each catalogue&#x27;s _shared/stack-versions.md. Validate: bash scripts/validate.sh exits 0 when every rule passes. Changes land in CHANGELOG.md" src="assets/readme/release-v2-dark.svg" width="100%">
+  <img alt="v0.9.0: One marketplace, eight plugins, 81 skills. Built and run: Every code block in the catalogues was built and run in scratch projects on 2026-10-09. Anything not run is labelled unverified in place. Version floors: Versions are floors in each catalogue&#x27;s _shared/stack-versions.md. Validate: bash scripts/validate.sh exits 0 when every rule passes. Changes land in CHANGELOG.md" src="assets/readme/release-v2-dark.svg" width="100%">
 </picture>
 </p>
 

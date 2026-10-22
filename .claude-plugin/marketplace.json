@@ -6,13 +6,13 @@
     "email": "velimir.mueller@googlemail.com"
   },
   "metadata": {
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "plugins": [
     {
       "name": "devcore",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "The core every other plugin builds on: a one-time stack-profile wizard, on-demand skill authoring, toolchain and security audits, commit and PR writing, release promotion, and the shared security, logging and observability contracts.",
       "skills": [
         "./skills/core/"
@@ -33,7 +33,7 @@
     {
       "name": "frontendskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "Vite-SPA app lifecycle for React 19 / Vue 3 (state, routing, forms, auth, testing, performance, a11y) plus a framework-agnostic landing-page catalogue (SEO, lead capture, content and copy audits).",
       "skills": [
         "./skills/frontend/",
@@ -58,7 +58,7 @@
     {
       "name": "backendskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "Backend services on TypeScript (Hono + Drizzle), Go, Python (FastAPI), Supabase and Next.js 16: API contracts, Postgres and migrations, auth, jobs, hardening, OpenTelemetry and tests.",
       "skills": [
         "./skills/backend/"
@@ -83,7 +83,7 @@
     {
       "name": "infraskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "Ship and run it: containers, OpenTofu, Terraform pipelines with approval gates, Vercel, Hetzner and IONOS deploys, a build-once-promote pipeline, secrets, and an OpenTelemetry collector.",
       "skills": [
         "./skills/infra/"
@@ -110,7 +110,7 @@
     {
       "name": "opsskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "Operate the platforms you deploy onto: Azure, Entra ID, Exchange Online, AWS and Airtable — the CLIs, sign-in, least privilege and the traps — plus alerting with SigNoz.",
       "skills": [
         "./skills/ops/"
@@ -134,7 +134,7 @@
     {
       "name": "cliskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "Build and release command-line tools that behave (exit codes, --json, config precedence) and set up a repo's dev toolchain (mise, task runner, git hooks).",
       "skills": [
         "./skills/cli/"
@@ -155,7 +155,7 @@
     {
       "name": "aiskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "LLM features done properly: one provider seam, RAG pipelines with hybrid retrieval, evals in CI, MCP servers, and LLM-specific security.",
       "skills": [
         "./skills/ai/"
@@ -177,7 +177,7 @@
     {
       "name": "gameskills",
       "source": "./",
-      "version": "0.8.0",
+      "version": "0.9.0",
       "description": "Rust + Bevy game development: fast-compile scaffold, plugin-per-feature ECS architecture, asset loading, headless system tests, and performance.",
       "skills": [
         "./skills/game/"

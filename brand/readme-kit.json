@@ -45,7 +45,7 @@
       "title": "The set in numbers",
       "items": [
         {
-          "value": "80",
+          "value": "81",
           "label": "skills across the set"
         },
         {
@@ -131,12 +131,12 @@
         },
         {
           "label": "Version",
-          "value": "v0.8.0 · one version everywhere",
+          "value": "v0.9.0 · one version everywhere",
           "state": "ok"
         },
         {
           "label": "Plugins",
-          "value": "8 · 80 skills",
+          "value": "8 · 81 skills",
           "state": "ok"
         },
         {
@@ -155,7 +155,7 @@
       "key": "lead",
       "type": "lead",
       "title": "ABOUT",
-      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 80 skills across 8 plugins, shipped as the Claude Code marketplace `claude-development-skills`. It does not write your app. It tells you where the seams go."
+      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 81 skills across 8 plugins, shipped as the Claude Code marketplace `claude-development-skills`. It does not write your app. It tells you where the seams go."
     },
     {
       "key": "what",
@@ -165,7 +165,7 @@
       "items": [
         {
           "lead": "One marketplace, MIT",
-          "text": "Ships as the Claude Code marketplace `claude-development-skills`: 80 skills in 8 plugins, licensed MIT."
+          "text": "Ships as the Claude Code marketplace `claude-development-skills`: 81 skills in 8 plugins, licensed MIT."
         },
         {
           "lead": "Stacks it covers",
@@ -406,8 +406,8 @@
       "columns": 2,
       "items": [
         {
-          "lead": "v0.8.0",
-          "text": "One marketplace, eight plugins, 80 skills."
+          "lead": "v0.9.0",
+          "text": "One marketplace, eight plugins, 81 skills."
         },
         {
           "lead": "Built and run",
@@ -484,7 +484,7 @@
         },
         {
           "label": "Changelog",
-          "sub": "CHANGELOG.md · v0.8.0",
+          "sub": "CHANGELOG.md · v0.9.0",
           "href": "CHANGELOG.md"
         },
         {
@@ -537,7 +537,7 @@
     }
   ],
   "readme": {
-    "hero_alt": "claude-development-skills. Opinions, packaged. Stable, v0.8.0. 80 skills in 8 plugins, one marketplace.",
+    "hero_alt": "claude-development-skills. Opinions, packaged. Stable, v0.9.0. 81 skills in 8 plugins, one marketplace.",
     "items": [
       "lead",
       "stats",

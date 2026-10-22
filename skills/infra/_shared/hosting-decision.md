@@ -10,6 +10,7 @@ Which host, and why. Read the stack profile first: `hosting:` and `database.host
 | Containers, steady traffic, one or few services, cost matters, EU residency matters | **Hetzner** (VM + Compose + Traefik) | Flat monthly cost per VM. German company, EU locations. You own patching, backups and restores |
 | German or EU contract, support SLA, BSI or customer demands a German provider, you need managed Postgres or managed Kubernetes | **IONOS** (VM or Cube + DBaaS Postgres, or Managed Kubernetes) | Managed database with backups, point-in-time restore and failover. Contract and invoicing in Germany. Smaller ecosystem and fewer tutorials than Hetzner |
 | App is mostly auth, Postgres, storage and realtime; little custom server code | **Supabase** (managed) | Auth, database, storage and realtime in one product. Pair it with Vercel or a container host for custom code |
+| Small fixed box for a side role (watcher, bastion, proxy), flat price, no IaC needed | **IONOS VPS** (Cloud Panel) | Cheap and simple. No tofu provider, no cloud-init, hardening over SSH. See [set-up-ionos-vps](../set-up-ionos-vps/SKILL.md) |
 | Static site, no server code | **Vercel**, Netlify, or **IONOS Deploy Now** | Cheapest and lowest effort. See `deploy-to-ionos` for when Deploy Now fits |
 | Many services, autoscaling, several teams | Managed Kubernetes (IONOS) or k3s on Hetzner | Only after one VM stops being enough. See "graduate" in [deploy-to-hetzner](../deploy-to-hetzner/SKILL.md) |
 
