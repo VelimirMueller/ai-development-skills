@@ -1,21 +1,21 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/banner/hero-v2-light.svg">
-  <img alt="claude-skills. Opinions, packaged. Stable, v0.7.1. 73 skills in 7 plugins, one marketplace." src="assets/banner/hero-v2-dark.svg" width="100%">
+  <img alt="claude-development-skills. Opinions, packaged. Stable, v0.8.0. 80 skills in 8 plugins, one marketplace." src="assets/banner/hero-v2-dark.svg" width="100%">
 </picture>
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/lead-v2-light.svg">
-  <img alt="Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 73 skills across 7 plugins, shipped as the Claude Code marketplace frontendskills. It does not write your app. It tells you where the seams go." src="assets/readme/lead-v2-dark.svg" width="100%">
+  <img alt="Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 80 skills across 8 plugins, shipped as the Claude Code marketplace claude-development-skills. It does not write your app. It tells you where the seams go." src="assets/readme/lead-v2-dark.svg" width="100%">
 </picture>
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/stats-v2-light.svg">
-  <img alt="73 skills across the set. 7 plugins, one per domain. 1 marketplace: frontendskills. 0 changes on a second run" src="assets/readme/stats-v2-dark.svg" width="100%">
+  <img alt="80 skills across the set. 8 plugins, one per domain. 1 marketplace: claude-development-skills. 0 changes on a second run" src="assets/readme/stats-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -35,7 +35,7 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/what-v2-light.svg">
-  <img alt="One marketplace, MIT: Ships as the Claude Code marketplace frontendskills: 73 skills in 7 plugins, licensed MIT. Stacks it covers: React 19 / Vue 3 · Hono / Go / FastAPI · Supabase / Next 16 · Vercel / Hetzner / IONOS · Rust + Bevy. No change on a second run: Reads your stack profile first, applies only the missing move, and changes nothing on a second run. Judgment, not dogma: Every rule ships with its when to deviate. The aim is judgment, not dogma" src="assets/readme/what-v2-dark.svg" width="100%">
+  <img alt="One marketplace, MIT: Ships as the Claude Code marketplace claude-development-skills: 80 skills in 8 plugins, licensed MIT. Stacks it covers: React 19 / Vue 3 · Hono / Go / FastAPI · Supabase / Next 16 · Vercel / Hetzner / IONOS · Rust + Bevy. No change on a second run: Reads your stack profile first, applies only the missing move, and changes nothing on a second run. Judgment, not dogma: Every rule ships with its when to deviate. The aim is judgment, not dogma" src="assets/readme/what-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -48,7 +48,7 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/start-v2-light.svg">
-  <img alt="Terminal: $ /plugin marketplace add VelimirMueller/claude-skills | $ /plugin install devcore@frontendskills | # then ask Claude to &quot;set up my stack profile&quot;" src="assets/readme/start-v2-dark.svg" width="100%">
+  <img alt="Terminal: $ /plugin marketplace add VelimirMueller/claude-development-skills | $ /plugin install devcore@claude-development-skills | # then ask Claude to &quot;set up my stack profile&quot;" src="assets/readme/start-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -56,9 +56,9 @@
 <summary><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-16-v2-light.svg"><img alt="Plain text" src="assets/readme/links-16-v2-dark.svg" width="32%"></picture></summary>
 
 ```text
-/plugin marketplace add VelimirMueller/claude-skills
-/plugin install devcore@frontendskills
-/plugin marketplace update frontendskills
+/plugin marketplace add VelimirMueller/claude-development-skills
+/plugin install devcore@claude-development-skills
+/plugin marketplace update claude-development-skills
 ```
 
 </details>
@@ -66,7 +66,7 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/setup-v2-light.svg">
-  <img alt="Run the wizard: Add the marketplace, install devcore, then ask Claude to &quot;set up my stack profile&quot;. The wizard detects the stack, asks only the gaps, writes .claude/stack-profile.md, and prints the plugins to enable. devcore comes along: Every plugin depends on devcore, so installing any of them installs it too. Small context cost: Each enabled skill keeps its one-line Use when description in context, and loads in full only when that line matches. Install what you use: Install only the plugins your stack uses; the rest cost nothing. One step per plugin: Claude Code 2.1.275 or later adds the marketplace on the way. See REFERENCE.md. Update: Run /plugin marketplace update frontendskills" src="assets/readme/setup-v2-dark.svg" width="100%">
+  <img alt="Run the wizard: Add the marketplace, install devcore, then ask Claude to &quot;set up my stack profile&quot;. The wizard detects the stack, asks only the gaps, writes .claude/stack-profile.md, and prints the plugins to enable. devcore comes along: Every plugin depends on devcore, so installing any of them installs it too. Small context cost: Each enabled skill keeps its one-line Use when description in context, and loads in full only when that line matches. Install what you use: Install only the plugins your stack uses; the rest cost nothing. One step per plugin: Claude Code 2.1.275 or later adds the marketplace on the way. See REFERENCE.md. Update: Run /plugin marketplace update claude-development-skills" src="assets/readme/setup-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -100,13 +100,13 @@
 <br>
 
 <p>
-<img alt="04 USAGE. Seventy-three skills, condensed." src="assets/readme/divider-usage-v2.svg" width="100%">
+<img alt="04 USAGE. Eighty skills, condensed." src="assets/readme/divider-usage-v2.svg" width="100%">
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/plugins-v2-light.svg">
-  <img alt="devcore@frontendskills: The stack-profile wizard, security and toolchain audits, commit and PR writing. 6 skills. frontendskills@frontendskills: Vite-SPA lifecycle (React 19 / Vue 3) plus landing &amp; content pages. 26 + 5 skills. backendskills@frontendskills: Hono / Go / FastAPI services, Supabase, Next 16. 15 skills. infraskills@frontendskills: Containers, OpenTofu, deploys, secrets, OTel collector. 8 skills. cliskills@frontendskills: Command-line tools and the dev toolchain. 3 skills. aiskills@frontendskills: LLM seams, RAG, evals, MCP servers. 5 skills. gameskills@frontendskills: Rust + Bevy games. 5 skills" src="assets/readme/plugins-v2-dark.svg" width="100%">
+  <img alt="devcore@claude-development-skills: The stack-profile wizard, security and toolchain audits, commit and PR writing, release promotion. 7 skills. frontendskills@claude-development-skills: Vite-SPA lifecycle (React 19 / Vue 3) plus landing &amp; content pages. 26 + 5 skills. backendskills@claude-development-skills: Hono / Go / FastAPI services, Supabase, Next 16. 15 skills. infraskills@claude-development-skills: Containers, OpenTofu, Terraform pipelines, deploys, secrets, OTel collector. 9 skills. opsskills@claude-development-skills: Azure, Entra ID, Exchange Online, AWS, Airtable CLIs and traps, plus alerting with SigNoz. 5 skills. cliskills@claude-development-skills: Command-line tools and the dev toolchain. 3 skills. aiskills@claude-development-skills: LLM seams, RAG, evals, MCP servers. 5 skills. gameskills@claude-development-skills: Rust + Bevy games. 5 skills" src="assets/readme/plugins-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -148,6 +148,14 @@
 <a href="CHANGELOG.md"><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-12-v2-light.svg"><img alt="Changelog (CHANGELOG.md)" src="assets/readme/links-12-v2-dark.svg" width="32%"></picture></a>
 </p>
 
+## // Deploys: one merge strategy
+
+Every change enters at `develop`. `stage` and `main` receive only fast-forwards, through an
+approved promotion, so `dev`, `stg` and `prd` run the same commit. The contract:
+[branch-promotion.md](skills/core/_shared/branch-promotion.md) — run a promotion with
+[promote-release](skills/core/promote-release/SKILL.md), wire the pipeline that enforces it
+with [set-up-terraform-pipeline](skills/infra/set-up-terraform-pipeline/SKILL.md).
+
 <br>
 
 <p>
@@ -157,14 +165,14 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/status-v2-light.svg">
-  <img alt="Marketplace: frontendskills. Version: v0.7.1 · one version everywhere. Plugins: 7 · 73 skills. Validate: bash scripts/validate.sh. CI: validate on every pull request" src="assets/readme/status-v2-dark.svg" width="100%">
+  <img alt="Marketplace: claude-development-skills. Version: v0.8.0 · one version everywhere. Plugins: 8 · 80 skills. Validate: bash scripts/validate.sh. CI: validate on every pull request" src="assets/readme/status-v2-dark.svg" width="100%">
 </picture>
 </p>
 
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/release-v2-light.svg">
-  <img alt="v0.7.1: One marketplace, seven plugins, 73 skills. Built and run: Every code block in the catalogues was built and run in scratch projects on 2026-10-09. Anything not run is labelled unverified in place. Version floors: Versions are floors in each catalogue&#x27;s _shared/stack-versions.md. Validate: bash scripts/validate.sh exits 0 when every rule passes. Changes land in CHANGELOG.md" src="assets/readme/release-v2-dark.svg" width="100%">
+  <img alt="v0.8.0: One marketplace, eight plugins, 80 skills. Built and run: Every code block in the catalogues was built and run in scratch projects on 2026-10-09. Anything not run is labelled unverified in place. Version floors: Versions are floors in each catalogue&#x27;s _shared/stack-versions.md. Validate: bash scripts/validate.sh exits 0 when every rule passes. Changes land in CHANGELOG.md" src="assets/readme/release-v2-dark.svg" width="100%">
 </picture>
 </p>
 

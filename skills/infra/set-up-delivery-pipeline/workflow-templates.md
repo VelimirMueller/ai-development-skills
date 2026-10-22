@@ -25,8 +25,7 @@ name: delivery
 on:
   pull_request:
   push:
-    branches: [main]
-    tags: ['v*']
+    branches: [develop, stage, main]
 
 permissions: {}
 
@@ -36,13 +35,13 @@ concurrency:
 
 jobs:
   checks:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/develop' }}
     permissions:
       contents: read
     uses: ./.github/workflows/_checks.yml
 
   build:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/develop' }}
     needs: checks
     permissions:
       contents: read
@@ -63,9 +62,9 @@ jobs:
       environment: dev
       image: ${{ needs.build.outputs.image }}
 
-  # Tag push: no rebuild. Find the digest that main already built for this commit.
+  # Promotion push (stage, main): no rebuild. Find the digest that develop built for this commit.
   resolve:
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -74,16 +73,16 @@ jobs:
     outputs:
       image: ${{ steps.digest.outputs.image }}
     steps:
-      - name: Tag must point at a commit on main
+      - name: Commit must be the one develop built
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           SHA: ${{ github.sha }}
         run: |
-          status=$(gh api "repos/$REPO/compare/main...$SHA" --jq .status)
+          status=$(gh api "repos/$REPO/compare/develop...$SHA" --jq .status)
           case "$status" in
             identical|behind) ;;
-            *) echo "::error::$SHA is not an ancestor of main (compare status: $status)"; exit 1 ;;
+            *) echo "::error::$SHA is not an ancestor of develop (compare status: $status)"; exit 1 ;;
           esac
       - name: Look up the digest built for this commit
         id: digest
@@ -95,10 +94,11 @@ jobs:
           echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           name="ghcr.io/${REPO,,}"
           digest=$(docker buildx imagetools inspect "$name:sha-$SHA" --format '{{.Manifest.Digest}}')
-          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "::error::no image for $SHA; did the main build finish?"; exit 1; }
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "::error::no image for $SHA; did the develop build finish?"; exit 1; }
           echo "image=$name@$digest" >> "$GITHUB_OUTPUT"
 
   stg:
+    if: ${{ github.ref == 'refs/heads/stage' }}
     needs: resolve
     permissions:
       contents: read
@@ -109,8 +109,10 @@ jobs:
       environment: stg
       image: ${{ needs.resolve.outputs.image }}
 
+  # Order is enforced before the push: promote.yml promotes to prd only a SHA that deployed green on stg.
   prd:
-    needs: [resolve, stg]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: resolve
     permissions:
       contents: read
       packages: read
@@ -315,8 +317,9 @@ arguments changes nothing.
 
 ## `.github/workflows/rollback.yml`
 
-Run it from the tag of the version you want back ("Use workflow from: Tag"). That checks out the deploy files of that
-release, and satisfies the tag rule on `stg` and `prd`.
+Run it from the branch that owns the environment ("Use workflow from: Branch" `stage` or `main`); that satisfies the
+deployment branch policy on `stg` and `prd`. The branch itself never moves backward: this deploys an earlier digest,
+and a revert PR into `develop` (then promoted) is the forward path that closes the hole.
 
 ```yaml
 name: rollback
@@ -375,14 +378,14 @@ Dependabot rewrites the SHA and the `# vX.Y.Z` comment together. Renovate does t
 ## Vercel track
 
 Vercel's Git integration builds every push. To get an approval gate, turn off automatic domain assignment so a build
-of `main` is a **staged** production deployment, then promote it from Actions after approval.
+of `develop` is a **staged** production deployment, then promote it from Actions after approval.
 
 One time, per project: Vercel dashboard → Project → Settings → Environments → Production → Branch Tracking →
 turn **Auto-assign Custom Production Domains** off. Add `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` as
 secrets on the GitHub `prd` environment only.
 
-Mapping: PR preview deployment = `dev`; staged production deployment of `main` = `stg`; promote = `prd`.
-`delivery.yml` keeps only the `checks` job. Make `checks` a required status check on `main`.
+Mapping: PR preview deployment = `dev`; staged production deployment of `develop` = `stg`; promote = `prd`.
+`delivery.yml` keeps only the `checks` job. Make `checks` a required status check on `develop`.
 
 ```yaml
 # .github/workflows/promote-vercel.yml
@@ -392,7 +395,7 @@ on:
   workflow_dispatch:
     inputs:
       deployment:
-        description: URL or id of the staged production deployment (Vercel commit status on main)
+        description: URL or id of the staged production deployment (Vercel commit status on develop)
         type: string
         required: true
 

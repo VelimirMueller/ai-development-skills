@@ -1,10 +1,25 @@
 # Changelog
 
-All notable changes to **frontendskills** are recorded here.
+All notable changes to **claude-development-skills** are recorded here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html): a new skill is a minor
 bump, a fix to an existing one is a patch.
+
+## [0.8.0] — 2026-10-22
+
+### Added
+- **The branch-promotion contract** (`skills/core/_shared/branch-promotion.md`) — every change enters at `develop`; `stage` and `main` receive fast-forwards only, behind the `promote-stg`/`promote-prd` gates; `main ⊆ stage ⊆ develop`.
+- **`promote-release` (devcore)** — runs the approved fast-forward promotion of `stage`, then `main`; dev, stg and prd stay on one SHA.
+- **`set-up-terraform-pipeline` (infraskills)** — Terraform/OpenTofu CI/CD on GitHub Actions: plan artifacts, approval-gated applies, drift detection, branch promotion.
+- **`opsskills` — a new plugin with 5 skills** — `operate-azure`, `operate-entra-and-exchange`, `operate-aws`, `operate-airtable`, `set-up-alerting` (SigNoz). The set now stands at **80 skills across eight plugins**.
+
+### Changed
+- **Marketplace renamed `frontendskills` → `claude-development-skills`; repo renamed to `VelimirMueller/claude-development-skills`.** Install refs change to `<plugin>@claude-development-skills`; the plugin named `frontendskills` keeps its name.
+- **The environments contract and `set-up-delivery-pipeline` move from tag-based stg/prd to fast-forward branch promotion** — `dev` deploys on push to `develop`; `stg` and `prd` deploy on the approved fast-forwards of `stage` and `main`.
+
+### Migration
+- `/plugin marketplace remove frontendskills`, then `/plugin marketplace add VelimirMueller/claude-development-skills` and reinstall your plugins.
 
 ## [0.7.1] — 2026-10-09
 

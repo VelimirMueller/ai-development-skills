@@ -4,7 +4,7 @@ The contract every infra skill follows. Three environments: `dev`, `stg`, `prd`.
 
 ## Rule: build once, promote the digest
 **Why:** A rebuild per environment ships a different binary to `prd` than the one tested in `stg`. Base-image drift, a moved tag or a changed dependency makes "it worked in stg" false. A digest names the exact bytes.
-**How to apply:** CI builds `ghcr.io/<org>/<app>` once, records `image@sha256:…`, and every environment deploys that reference. Never deploy a tag. The host rejects any reference that is not `<repo>@sha256:<64 hex>` (see [deploy-script.md](./deploy-script.md)). Promotion moves the same digest from `dev` to `stg` to `prd`. Pipeline mechanics: [set-up-delivery-pipeline](../set-up-delivery-pipeline/SKILL.md).
+**How to apply:** CI builds `ghcr.io/<org>/<app>` once, records `image@sha256:…`, and every environment deploys that reference. Never deploy a tag. The host rejects any reference that is not `<repo>@sha256:<64 hex>` (see [deploy-script.md](./deploy-script.md)). `dev` deploys on push to `develop`; `stg` deploys on the fast-forward of `stage`; `prd` deploys on the fast-forward of `main`. Each deploy looks up the digest by the commit SHA — the same SHA sits on all three branches, because promotion is a fast-forward ([branch-promotion](../../core/_shared/branch-promotion.md)). Pipeline mechanics: [set-up-delivery-pipeline](../set-up-delivery-pipeline/SKILL.md); Terraform pipelines: [set-up-terraform-pipeline](../set-up-terraform-pipeline/SKILL.md).
 **Anti-example:** `docker build` on the `prd` host, or `image: app:latest` in compose.
 **Exception:** Vercel builds in its own pipeline. Promoting a staged production build does not rebuild, but there is no digest to compare. See [deploy-to-vercel](../deploy-to-vercel/SKILL.md).
 
@@ -16,9 +16,9 @@ The contract every infra skill follows. Three environments: `dev`, `stg`, `prd`.
 ## Rule: prd changes need approval
 **Why:** `prd` is where users and data are. A person who did not write the change must see it first, and the record must say who approved.
 **How to apply:**
-- Infrastructure: `tofu plan` runs on the pull request; `tofu apply` runs from the saved plan file after approval of the GitHub environment `prd` (required reviewers). See [set-up-opentofu](../set-up-opentofu/SKILL.md).
+- Every change enters at `develop`; promotion to `stg` and `prd` is a fast-forward of the verified SHA, never a merge. The gates are the GitHub environments `promote-stg` and `promote-prd`, each with required reviewers. Contract: [branch-promotion](../../core/_shared/branch-promotion.md).
+- Infrastructure: `tofu plan` runs on the pull request; `tofu apply` runs from the saved plan file after approval. On `prd` the apply is additionally gated by `tf-apply-prd` — and only when the plan has changes. See [set-up-opentofu](../set-up-opentofu/SKILL.md), [set-up-terraform-pipeline](../set-up-terraform-pipeline/SKILL.md).
 - Application: the `prd` deploy job uses the same environment gate.
-- `dev` deploys on merge to `main`. `stg` and `prd` deploy from a version tag.
 - Private repositories on a plan without environment reviewers have a weaker gate. Say so in the README; do not pretend.
 **Anti-example:** `tofu apply -auto-approve` from a laptop against `prd`.
 
@@ -29,6 +29,7 @@ The contract every infra skill follows. Three environments: `dev`, `stg`, `prd`.
 | Thing | Pattern | Example |
 |---|---|---|
 | Environment | `dev`, `stg`, `prd` | `prd` |
+| Branch | `develop` / `stage` / `main` | `main` |
 | Resource prefix | `<app>-<env>` | `shop-prd` |
 | GitHub environment | the environment name | `prd` |
 | Hostname | `<env>.<app>.<domain>`; `prd` uses `<app>.<domain>` | `stg.shop.example.com` |

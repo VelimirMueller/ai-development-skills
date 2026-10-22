@@ -45,7 +45,7 @@
       "title": "The set in numbers",
       "items": [
         {
-          "value": "73",
+          "value": "80",
           "label": "skills across the set"
         },
         {
@@ -86,8 +86,8 @@
       "type": "terminal",
       "title": "Quick start",
       "lines": [
-        "$ /plugin marketplace add VelimirMueller/claude-skills",
-        "$ /plugin install devcore@frontendskills",
+        "$ /plugin marketplace add VelimirMueller/claude-development-skills",
+        "$ /plugin install devcore@claude-development-skills",
         "# then ask Claude to \"set up my stack profile\""
       ]
     },
@@ -136,7 +136,7 @@
         },
         {
           "label": "Plugins",
-          "value": "7 · 73 skills",
+          "value": "8 · 80 skills",
           "state": "ok"
         },
         {
@@ -155,7 +155,7 @@
       "key": "lead",
       "type": "lead",
       "title": "ABOUT",
-      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 73 skills across 7 plugins, shipped as the Claude Code marketplace `frontendskills`. It does not write your app. It tells you where the seams go."
+      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 80 skills across 8 plugins, shipped as the Claude Code marketplace `claude-development-skills`. It does not write your app. It tells you where the seams go."
     },
     {
       "key": "what",
@@ -165,7 +165,7 @@
       "items": [
         {
           "lead": "One marketplace, MIT",
-          "text": "Ships as the Claude Code marketplace `frontendskills`: 73 skills in 7 plugins, licensed MIT."
+          "text": "Ships as the Claude Code marketplace `claude-development-skills`: 80 skills in 8 plugins, licensed MIT."
         },
         {
           "lead": "Stacks it covers",
@@ -209,7 +209,7 @@
         },
         {
           "lead": "Update",
-          "text": "Run `/plugin marketplace update frontendskills`."
+          "text": "Run `/plugin marketplace update claude-development-skills`."
         }
       ]
     },
@@ -263,31 +263,35 @@
       "title": "THE PLUGINS · EVERY SKILL IS IN REFERENCE.MD",
       "rows": [
         {
-          "cmd": "devcore@frontendskills",
-          "text": "The stack-profile wizard, security and toolchain audits, commit and PR writing. **6 skills.**"
+          "cmd": "devcore@claude-development-skills",
+          "text": "The stack-profile wizard, security and toolchain audits, commit and PR writing, release promotion. **7 skills.**"
         },
         {
-          "cmd": "frontendskills@frontendskills",
+          "cmd": "frontendskills@claude-development-skills",
           "text": "Vite-SPA lifecycle (React 19 / Vue 3) plus landing & content pages. **26 + 5 skills.**"
         },
         {
-          "cmd": "backendskills@frontendskills",
+          "cmd": "backendskills@claude-development-skills",
           "text": "Hono / Go / FastAPI services, Supabase, Next 16. **15 skills.**"
         },
         {
-          "cmd": "infraskills@frontendskills",
-          "text": "Containers, OpenTofu, deploys, secrets, OTel collector. **8 skills.**"
+          "cmd": "infraskills@claude-development-skills",
+          "text": "Containers, OpenTofu, Terraform pipelines with approval gates, deploys, secrets, OTel collector. **9 skills.**"
         },
         {
-          "cmd": "cliskills@frontendskills",
+          "cmd": "opsskills@claude-development-skills",
+          "text": "Azure, Entra ID, Exchange Online, AWS, Airtable, alerting with SigNoz. **5 skills.**"
+        },
+        {
+          "cmd": "cliskills@claude-development-skills",
           "text": "Command-line tools and the dev toolchain. **3 skills.**"
         },
         {
-          "cmd": "aiskills@frontendskills",
+          "cmd": "aiskills@claude-development-skills",
           "text": "LLM seams, RAG, evals, MCP servers. **5 skills.**"
         },
         {
-          "cmd": "gameskills@frontendskills",
+          "cmd": "gameskills@claude-development-skills",
           "text": "Rust + Bevy games. **5 skills.**"
         }
       ]
@@ -379,7 +383,7 @@
       "items": [
         {
           "lead": "v0.7.1",
-          "text": "One marketplace, seven plugins, 73 skills."
+          "text": "One marketplace, eight plugins, 80 skills."
         },
         {
           "lead": "Built and run",
@@ -489,7 +493,7 @@
     }
   ],
   "readme": {
-    "hero_alt": "claude-skills. Opinions, packaged. Stable, v0.7.1. 73 skills in 7 plugins, one marketplace.",
+    "hero_alt": "claude-skills. Opinions, packaged. Stable, v0.7.1. 80 skills in 8 plugins, one marketplace.",
     "items": [
       "lead",
       "stats",
@@ -504,7 +508,7 @@
         "code": [
           [
             "text",
-            "/plugin marketplace add VelimirMueller/claude-skills\n/plugin install devcore@frontendskills\n/plugin marketplace update frontendskills"
+            "/plugin marketplace add VelimirMueller/claude-development-skills\n/plugin install devcore@claude-development-skills\n/plugin marketplace update claude-development-skills"
           ]
         ]
       },

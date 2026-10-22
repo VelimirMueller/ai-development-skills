@@ -7,16 +7,17 @@ The full catalogue, the install commands, the team setup, the run example and th
 One step per plugin (Claude Code 2.1.275 or later adds the marketplace on the way):
 
 ```text
-/plugin install devcore --marketplace VelimirMueller/claude-skills
-/plugin install frontendskills --marketplace VelimirMueller/claude-skills
-/plugin install backendskills --marketplace VelimirMueller/claude-skills
-/plugin install infraskills --marketplace VelimirMueller/claude-skills
-/plugin install cliskills --marketplace VelimirMueller/claude-skills
-/plugin install aiskills --marketplace VelimirMueller/claude-skills
-/plugin install gameskills --marketplace VelimirMueller/claude-skills
+/plugin install devcore --marketplace VelimirMueller/claude-development-skills
+/plugin install frontendskills --marketplace VelimirMueller/claude-development-skills
+/plugin install backendskills --marketplace VelimirMueller/claude-development-skills
+/plugin install infraskills --marketplace VelimirMueller/claude-development-skills
+/plugin install opsskills --marketplace VelimirMueller/claude-development-skills
+/plugin install cliskills --marketplace VelimirMueller/claude-development-skills
+/plugin install aiskills --marketplace VelimirMueller/claude-development-skills
+/plugin install gameskills --marketplace VelimirMueller/claude-development-skills
 ```
 
-Update with `/plugin marketplace update frontendskills`.
+Update with `/plugin marketplace update claude-development-skills`.
 
 ## The catalogue
 
@@ -28,6 +29,7 @@ Update with `/plugin marketplace update frontendskills`.
 - **`extend-skillset`** — Authors a house-style skill for a tool nothing covers.
 - **`write-commit-messages`** — A subject and body any developer can act on.
 - **`write-pull-requests`** — A description reviewers can follow end to end.
+- **`promote-release`** — Runs the approved fast-forward of `stage`, then `main`; one release, dev/stg/prd on one SHA.
 
 ### frontendskills
 
@@ -128,6 +130,15 @@ These five audit *built HTML* from any stack and gate on the page-level question
 - **`manage-secrets`** — Decide where each secret lives; keep them out of images, logs, bundles.
 - **`set-up-delivery-pipeline`** — Trunk-based CI/CD: one image, promote dev→stg→prd by digest.
 - **`set-up-opentofu`** — OpenTofu layout, encrypted state, plan-as-artifact, drift detection.
+- **`set-up-terraform-pipeline`** — Terraform/OpenTofu CI/CD: plan artifacts, approval-gated applies, branch promotion.
+
+### opsskills
+
+- **`operate-azure`** — Azure CLI sign-in, resource graph, RBAC and the traps; read-only where Terraform owns the resources.
+- **`operate-entra-and-exchange`** — Entra ID apps, federation and Graph; Exchange Online mail flow and RBAC for Applications.
+- **`operate-aws`** — IAM Identity Center profiles, explicit profile and region, least privilege, no long-lived keys.
+- **`operate-airtable`** — PAT scopes, rate limits, field IDs, webhooks; never write to a table another system owns.
+- **`set-up-alerting`** — Alerts as code on symptoms users feel; every alert with a runbook, an owner and a test fire in dev.
 
 ### cliskills
 
@@ -159,13 +170,13 @@ trusts the folder gets the skills:
 ```json
 {
   "extraKnownMarketplaces": {
-    "frontendskills": {
-      "source": { "source": "github", "repo": "VelimirMueller/claude-skills" }
+    "claude-development-skills": {
+      "source": { "source": "github", "repo": "VelimirMueller/claude-development-skills" }
     }
   },
   "enabledPlugins": {
-    "devcore@frontendskills": true,
-    "backendskills@frontendskills": true
+    "devcore@claude-development-skills": true,
+    "backendskills@claude-development-skills": true
   }
 }
 ```
@@ -223,7 +234,7 @@ telemetry to one collector; one `deploy.sh` contract is all `deploy-to-<host>` e
      ▼
   ┌────────────────────────┐   reads first   ┌─────────────────────────────┐
   │  skill  (SKILL.md)     │ ──────────────▸ │  .claude/stack-profile.md   │
-  │  one of 73, 7 plugins  │                 │  written once by the wizard │
+  │  one of 80, 8 plugins  │                 │  written once by the wizard │
   └───────────┬────────────┘                 └─────────────────────────────┘
               │  1 audit   what is already there?
               │  2 apply   only the missing move, behind one seam

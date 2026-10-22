@@ -9,8 +9,10 @@ beyond CI live in [security-baseline](../../core/_shared/security-baseline.md); 
 **Why:** A rebuild per environment produces a different artifact each time: new base-image layers, new dependency
 resolution, a different clock. "It passed in stg" then says nothing about prd. A digest (`sha256:…`) names bytes, so
 the bytes that passed `dev` and `stg` are the bytes that reach `prd`. Tags are mutable; digests are not.
-**How to apply:** `_build.yml` runs on `main` only and outputs `name@sha256:…`. Every deploy takes that string. A tag
-push never builds; it looks up the digest that `main` built for the same commit (`sha-<commit>`), and fails with a
+**How to apply:** `_build.yml` runs on `develop` only and outputs `name@sha256:…`. Every deploy takes that string. A
+promotion push (`stage`, `main`) never builds; it looks up the digest that `develop` built for the same commit
+(`sha-<commit>` — the same SHA sits on all three branches because promotion is a fast-forward; see
+[branch-promotion](../../core/_shared/branch-promotion.md)), and fails with a
 clear error when none exists. Environment differences live in environment variables, never in the image.
 **Anti-example:** `docker build` inside the `prd` job "to be sure it is fresh". It deploys something nobody tested.
 
@@ -33,7 +35,7 @@ with your job's token and secrets. A full SHA cannot be moved. GitHub can enforc
 **How to apply:** `uses: owner/action@<40-hex> # vX.Y.Z`. Enable `sha_pinning_required` (step 4 of the skill) after
 every workflow is pinned, because it fails all unpinned runs at once, including transitive ones inside composite
 actions. Dependabot (or Renovate with `helpers:pinGitHubActionDigests`) updates the SHA and the comment together; the
-`cooldown` of 7 days keeps a freshly published release from reaching `main` before the community has looked at it.
+`cooldown` of 7 days keeps a freshly published release from reaching `develop` before the community has looked at it.
 Reusable workflows in the same repository (`./.github/workflows/x.yml`) are exempt and run at the caller's commit.
 **Anti-example:** `uses: actions/checkout@v4` "because Dependabot bumps it". Dependabot proposes; it does not make a
 tag immutable.
@@ -77,8 +79,10 @@ directory removed at the end; do not leave a PAT on the host.
 **Why:** An environment secret is released to a job only after the environment's protection rules pass. So the same
 mechanism gives you approval and isolation: a PR from a branch cannot read `prd` secrets, and nothing reaches `prd`
 without a human who is not the author.
-**How to apply:** `dev` open to `main`; `stg` and `prd` restricted to `v*` tags (deployment tag policy); `prd` with
-required reviewers and `prevent_self_review: true`. Admins can bypass by default; disable that for `prd` in the
+**How to apply:** `dev`, `stg` and `prd` are each restricted to their deployment branch (`develop`, `stage`, `main` —
+deployment branch policy); the promotion gates `promote-stg` and `promote-prd` carry the required reviewers
+(`prevent_self_review: true`), and `prd` keeps its reviewers on the deploy environment too. Admins can bypass by
+default; disable that for `prd` in the
 environment settings ("Allow administrators to bypass configured protection rules"; not in the REST schema, so it is a UI step). Keep per-environment config (URLs, hosts, flags) as environment
 **variables** and credentials as environment **secrets**. Names are identical across environments; only values differ,
 so workflow files contain no environment-specific branches.
@@ -91,7 +95,8 @@ so workflow files contain no environment-specific branches.
 "auto-deploy to prd".
 **How to apply:** On a private repo without Enterprise, split `prd` into its own workflow `deploy-prd.yml` triggered by
 `workflow_dispatch` only, take the digest as input, and protect it with a repository **ruleset** that limits who can
-push the `v*` tags, plus branch protection requiring a PR review on `main`. State the weaker guarantee to the user:
+run workflows and who can push `main`, plus branch protection requiring a PR review on `develop`. State the weaker
+guarantee to the user:
 the gate is "who can press the button", not "a second person must approve". If that is not enough, move the repo to a
 plan that has the feature or make it public. Never remove the gate.
 **Anti-example:** Leaving `environment: prd` in the workflow with no reviewers configured. It reads as a gate and is not.
@@ -124,7 +129,7 @@ group, so a burst of merges deploys the first and the last, in order.
 not a wrong result.
 **How to apply:** Node: `setup-node` with `cache: pnpm` (key from the lockfile). Tools: `mise-action` caches its
 installs. Images: `cache-from: type=gha` / `cache-to: type=gha,mode=max`. Never cache secrets, `.env`, or build
-output that embeds them. A cache written by a PR branch is not readable by `main`, so a PR cannot poison the default branch.
+output that embeds them. A cache written by a PR branch is not readable by `develop`, so a PR cannot poison the default branch.
 
 ## Rule: untrusted text never reaches a shell unquoted
 
@@ -145,14 +150,14 @@ Separating them keeps the policy readable in one screen and makes a mechanic (a 
 ## When to deviate
 
 - **Monorepo with several services:** keep one `delivery.yml`; call `_build.yml` once per service with a `service` input
-  and use `paths` filters (or a changed-files job) to skip unchanged services. The tag still promotes all digests of
-  that commit together.
+  and use `paths` filters (or a changed-files job) to skip unchanged services. The promotion still deploys all digests
+  of that commit together.
 - **Pull-based hosts** (an agent on the server pulls new digests): drop the SSH credential from CI entirely; CI only
   publishes and attests. The agent verifies the attestation. Better security, more moving parts; choose it when the
   host fleet is more than a few machines.
 - **Library or CLI (no deploy):** only `_checks.yml`; releases through a tag workflow that builds artifacts and attests
   them with `subject-path`.
-- **Very small hobby repo:** skip `stg`; a two-environment graph (`dev` on merge, `prd` on tag with approval) is fine.
-  Keep digest promotion and the gate.
+- **Very small hobby repo:** skip `stg`; a two-environment graph (`dev` on merge to `develop`, `prd` on the approved
+  fast-forward of `main`) is fine. Keep digest promotion and the gate.
 - **GitHub Enterprise Server:** artifact attestations are not supported; Vercel's Git integration does not work;
   use the prebuilt Vercel fallback and the unsigned-provenance path.
