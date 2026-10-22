@@ -27,7 +27,7 @@
       "key": "usage",
       "index": "04",
       "title": "USAGE",
-      "caption": "Seventy-three skills, condensed.",
+      "caption": "Eighty skills, condensed.",
       "art": "strip-flagship-4"
     },
     {
@@ -49,12 +49,12 @@
           "label": "skills across the set"
         },
         {
-          "value": "7",
+          "value": "8",
           "label": "plugins, one per domain"
         },
         {
           "value": "1",
-          "label": "marketplace: frontendskills"
+          "label": "marketplace: claude-development-skills"
         },
         {
           "value": "0",
@@ -126,12 +126,12 @@
       "rows": [
         {
           "label": "Marketplace",
-          "value": "frontendskills",
+          "value": "claude-development-skills",
           "state": "ok"
         },
         {
           "label": "Version",
-          "value": "v0.7.1 · one version everywhere",
+          "value": "v0.8.0 · one version everywhere",
           "state": "ok"
         },
         {
@@ -376,13 +376,37 @@
       ]
     },
     {
+      "key": "ops",
+      "type": "notes",
+      "title": "DEPLOYS AND TOOL GUIDES",
+      "columns": 2,
+      "items": [
+        {
+          "lead": "One merge strategy",
+          "text": "Every change enters at `develop`. `stage` and `main` get only fast-forwards, behind an approved promotion, so `dev`, `stg` and `prd` run the same commit."
+        },
+        {
+          "lead": "The contract",
+          "text": "`branch-promotion.md` holds the rules. `promote-release` runs a promotion. `set-up-terraform-pipeline` wires the CI/CD that enforces it."
+        },
+        {
+          "lead": "Tool guides",
+          "text": "Picture-first guides for Brevo, Airtable and Aircall: the parts, before and after, how it flows, the traps, and links to the official docs."
+        },
+        {
+          "lead": "Start here",
+          "text": "Open `guides/tools/README.md`."
+        }
+      ]
+    },
+    {
       "key": "release",
       "type": "notes",
       "title": "RELEASE",
       "columns": 2,
       "items": [
         {
-          "lead": "v0.7.1",
+          "lead": "v0.8.0",
           "text": "One marketplace, eight plugins, 80 skills."
         },
         {
@@ -460,7 +484,7 @@
         },
         {
           "label": "Changelog",
-          "sub": "CHANGELOG.md · v0.7.1",
+          "sub": "CHANGELOG.md · v0.8.0",
           "href": "CHANGELOG.md"
         },
         {
@@ -481,6 +505,26 @@
         {
           "label": "Plain text",
           "sub": "show copyable commands"
+        },
+        {
+          "label": "Branch promotion",
+          "sub": "skills/core/_shared",
+          "href": "skills/core/_shared/branch-promotion.md"
+        },
+        {
+          "label": "Promote release",
+          "sub": "skills/core",
+          "href": "skills/core/promote-release/SKILL.md"
+        },
+        {
+          "label": "Terraform pipeline",
+          "sub": "skills/infra",
+          "href": "skills/infra/set-up-terraform-pipeline/SKILL.md"
+        },
+        {
+          "label": "Tool guides",
+          "sub": "guides/tools",
+          "href": "guides/tools/README.md"
         }
       ]
     },
@@ -493,7 +537,7 @@
     }
   ],
   "readme": {
-    "hero_alt": "claude-skills. Opinions, packaged. Stable, v0.7.1. 80 skills in 8 plugins, one marketplace.",
+    "hero_alt": "claude-development-skills. Opinions, packaged. Stable, v0.8.0. 80 skills in 8 plugins, one marketplace.",
     "items": [
       "lead",
       "stats",
@@ -551,6 +595,21 @@
           10,
           11,
           12
+        ]
+      },
+      "ops",
+      {
+        "buttons": "links",
+        "only": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "buttons": "links",
+        "only": [
+          20
         ]
       },
       "divider:status",
