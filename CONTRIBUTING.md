@@ -1,9 +1,10 @@
-# Contributing to frontendskills
+# Contributing to claude-development-skills
 
-This repo is one marketplace, `frontendskills`, with seven plugins: **devcore**
+This repo is one marketplace, `claude-development-skills`, with eight plugins: **devcore**
 (`skills/core`), **frontendskills** (`skills/frontend` + `skills/landing`), **backendskills**
-(`skills/backend`), **infraskills** (`skills/infra`), **cliskills** (`skills/cli`),
-**aiskills** (`skills/ai`), and **gameskills** (`skills/game`). Each plugin is an entry in
+(`skills/backend`), **infraskills** (`skills/infra`), **opsskills** (`skills/ops`),
+**cliskills** (`skills/cli`), **aiskills** (`skills/ai`), and **gameskills** (`skills/game`).
+Each plugin is an entry in
 `.claude-plugin/marketplace.json` with `source: "./"` and its own `skills` list; every plugin
 depends on devcore. There is no root `plugin.json` — it would leak every catalogue into every
 plugin. The skills encode senior judgment as *situation-triggered procedures* — audit-first,
@@ -108,8 +109,11 @@ that load only when the question demands them. Each rule follows one shape:
 
 Cross-cutting contracts live in `skills/core/_shared/` — `engineering-principles`,
 `stack-profile`, `version-protocol`, `security-baseline`, `logging-contract`,
-`observability`, `tech-radar`, `audience` — and every catalogue has its own
-`_shared/stack-versions.md`. Link there instead of restating.
+`observability`, `tech-radar`, `audience`, `branch-promotion` — and every catalogue has its
+own `_shared/stack-versions.md`. Link there instead of restating.
+
+- `branch-promotion.md` — the one merge strategy for deploys: every change enters at
+  `develop`; `stage` and `main` take fast-forwards only, behind approval gates.
 
 Frontend-only shared rules live in `skills/frontend/_shared/`:
 

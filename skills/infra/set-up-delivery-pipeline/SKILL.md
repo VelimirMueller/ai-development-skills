@@ -1,6 +1,6 @@
 ---
 name: set-up-delivery-pipeline
-description: Use when a repo needs trunk-based CI/CD on GitHub Actions — PR checks, one image build per commit pushed by digest, auto-deploy to dev, tag to stg, manual approval to prd — with least-privilege permissions, SHA-pinned actions, OIDC and provenance.
+description: Use when a repo needs CI/CD on GitHub Actions — PR checks into develop, one image build per commit pushed by digest, dev on develop, stg and prd by approved fast-forward promotion of stage and main — with least-privilege permissions, SHA-pinned actions, OIDC and provenance.
 ---
 
 # Set Up Delivery Pipeline
@@ -50,8 +50,10 @@ Environment names and their meaning are in [environments](../_shared/environment
 ## 4. Prepare the repo (one time, needs admin)
 
 ```bash
-# Environments: dev, stg, prd. prd gets reviewers who are not the author.
-gh api -X PUT repos/{owner}/{repo}/environments/dev
+# Environments: dev (branch develop), stg (branch stage), prd (branch main). prd gets reviewers who are not the author.
+gh api -X PUT repos/{owner}/{repo}/environments/dev --input - <<'JSON'
+{ "deployment_branch_policy": { "protected_branches": false, "custom_branch_policies": true } }
+JSON
 gh api -X PUT repos/{owner}/{repo}/environments/stg --input - <<'JSON'
 { "deployment_branch_policy": { "protected_branches": false, "custom_branch_policies": true } }
 JSON
@@ -60,12 +62,25 @@ gh api -X PUT repos/{owner}/{repo}/environments/prd --input - <<'JSON'
   "reviewers": [{ "type": "Team", "id": 0 }],
   "deployment_branch_policy": { "protected_branches": false, "custom_branch_policies": true } }
 JSON
-# Replace "id": 0 with the team id (gh api orgs/<org>/teams/<slug> --jq .id). Then allow only tags v* on prd and stg:
-gh api -X POST repos/{owner}/{repo}/environments/prd/deployment-branch-policies -f name='v*' -f type=tag
-gh api -X POST repos/{owner}/{repo}/environments/stg/deployment-branch-policies -f name='v*' -f type=tag
+# Replace "id": 0 with the team id (gh api orgs/<org>/teams/<slug> --jq .id). Then pin each deploy
+# environment to its branch (type branch, not tag):
+gh api -X POST repos/{owner}/{repo}/environments/dev/deployment-branch-policies -f name=develop -f type=branch
+gh api -X POST repos/{owner}/{repo}/environments/stg/deployment-branch-policies -f name=stage -f type=branch
+gh api -X POST repos/{owner}/{repo}/environments/prd/deployment-branch-policies -f name=main -f type=branch
+# Promotion gates: promote-stg and promote-prd hold the reviewers that approve a fast-forward.
+gh api -X PUT repos/{owner}/{repo}/environments/promote-stg --input - <<'JSON'
+{ "prevent_self_review": true, "reviewers": [{ "type": "Team", "id": 0 }] }
+JSON
+gh api -X PUT repos/{owner}/{repo}/environments/promote-prd --input - <<'JSON'
+{ "prevent_self_review": true, "reviewers": [{ "type": "Team", "id": 0 }] }
+JSON
 # Reject any action that is not pinned to a full commit SHA (reusable workflows in the same repo are fine).
 gh api -X PUT repos/{owner}/{repo}/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true
 ```
+
+The promotion itself (resolve the verified SHA, approve, fast-forward `stage`, then `main`) is `promote.yml` from
+[set-up-terraform-pipeline](../set-up-terraform-pipeline/workflow-templates.md); this skill wires the deploy pipeline
+the promotion triggers.
 
 Plan limit: required reviewers and wait timers on **private** repos need GitHub Enterprise. On Free/Pro/Team private
 repos, use the fallback in [pipeline-patterns.md](./pipeline-patterns.md#rule-the-prd-gate-must-exist-on-every-plan).
@@ -96,6 +111,10 @@ Rules to keep while filling in:
 
 ## 6. Wire
 
+- Hotfix on `main` ([branch-promotion](../../core/_shared/branch-promotion.md), hotfix rule): its commit was never
+  built on `develop`, so `resolve` fails closed with "no image for <sha>". That is intended — prefer the default
+  hotfix path through `develop`. If the hotfix must land on `main`, run `_build.yml` for that SHA once
+  (add `workflow_dispatch` to it), then re-run the `main` pipeline; it resolves the new digest.
 - `deploy/deploy.sh` is the seam to the host. Contract: args `<environment> <image@sha256:digest>`, idempotent, exits non-zero if the new version is not healthy. The host skill writes it.
 - Per-environment config lives in GitHub **environment** variables and secrets (`HEALTH_URL`, `DEPLOY_HOST`, …), never in the workflow files. See [manage-secrets](../manage-secrets/SKILL.md).
 - Cloud access uses OIDC: `id-token: write` on the deploy job, a trust policy on `sub = repo:<org>/<repo>:environment:<env>`. Targets without OIDC (Hetzner, IONOS, Vercel token) use environment-scoped secrets and rotation; see the patterns file.
@@ -115,8 +134,8 @@ End to end, in this order:
 1. Open a PR → only `checks` runs; no build, no deploy, no secrets exposed.
 2. Merge → `checks`, `build`, `dev` run; the run summary lists an attestation; `dev` deploys `image@sha256:…`.
 3. `gh attestation verify oci://ghcr.io/<org>/<repo>@sha256:… --owner <org>` exits 0.
-4. Tag `v0.0.1` on that commit → `resolve` finds the same digest, `stg` deploys it, `prd` waits for approval.
-5. Approve → `prd` deploys the **same** digest. The `image` line in the `dev`, `stg`, `prd` logs is identical.
+4. Run `promote.yml` with `target: stg` → the `promote-stg` approval, then the fast-forward of `stage`; `resolve` finds the digest built for that SHA on `develop`, `stg` deploys it.
+5. Run `promote.yml` with `target: prd` → the `promote-prd` approval, then the fast-forward of `main`; `prd` deploys the **same** digest. The `image` line in the `dev`, `stg`, `prd` logs is identical.
 
 ## References
 - [pipeline-patterns.md](./pipeline-patterns.md): why each rule exists, the no-OIDC targets, the prd gate on every plan, when to deviate.
