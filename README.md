@@ -156,6 +156,11 @@ approved promotion, so `dev`, `stg` and `prd` run the same commit. The contract:
 [promote-release](skills/core/promote-release/SKILL.md), wire the pipeline that enforces it
 with [set-up-terraform-pipeline](skills/infra/set-up-terraform-pipeline/SKILL.md).
 
+## // Tool guides: the tools outside the code
+
+Picture-first guides for Brevo, Airtable and Aircall: the parts, before → after, how it flows,
+the traps, and links to the official docs. Start at [guides/tools](guides/tools/README.md).
+
 <br>
 
 <p>
