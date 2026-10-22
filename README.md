@@ -106,7 +106,7 @@
 <p>
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/readme/plugins-v2-light.svg">
-  <img alt="devcore@claude-development-skills: The stack-profile wizard, security and toolchain audits, commit and PR writing, release promotion. 7 skills. frontendskills@claude-development-skills: Vite-SPA lifecycle (React 19 / Vue 3) plus landing &amp; content pages. 26 + 5 skills. backendskills@claude-development-skills: Hono / Go / FastAPI services, Supabase, Next 16. 15 skills. infraskills@claude-development-skills: Containers, OpenTofu, Terraform pipelines, deploys, secrets, OTel collector. 9 skills. opsskills@claude-development-skills: Azure, Entra ID, Exchange Online, AWS, Airtable CLIs and traps, plus alerting with SigNoz. 5 skills. cliskills@claude-development-skills: Command-line tools and the dev toolchain. 3 skills. aiskills@claude-development-skills: LLM seams, RAG, evals, MCP servers. 5 skills. gameskills@claude-development-skills: Rust + Bevy games. 5 skills" src="assets/readme/plugins-v2-dark.svg" width="100%">
+  <img alt="devcore@claude-development-skills: The stack-profile wizard, security and toolchain audits, commit and PR writing, release promotion. 7 skills. frontendskills@claude-development-skills: Vite-SPA lifecycle (React 19 / Vue 3) plus landing &amp; content pages. 26 + 5 skills. backendskills@claude-development-skills: Hono / Go / FastAPI services, Supabase, Next 16. 15 skills. infraskills@claude-development-skills: Containers, OpenTofu, Terraform pipelines with approval gates, deploys, secrets, OTel collector. 9 skills. opsskills@claude-development-skills: Azure, Entra ID, Exchange Online, AWS, Airtable, alerting with SigNoz. 5 skills. cliskills@claude-development-skills: Command-line tools and the dev toolchain. 3 skills. aiskills@claude-development-skills: LLM seams, RAG, evals, MCP servers. 5 skills. gameskills@claude-development-skills: Rust + Bevy games. 5 skills" src="assets/readme/plugins-v2-dark.svg" width="100%">
 </picture>
 </p>
 
@@ -148,18 +148,22 @@
 <a href="CHANGELOG.md"><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-12-v2-light.svg"><img alt="Changelog (CHANGELOG.md)" src="assets/readme/links-12-v2-dark.svg" width="32%"></picture></a>
 </p>
 
-## // Deploys: one merge strategy
+<p>
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/readme/ops-v2-light.svg">
+  <img alt="One merge strategy: Every change enters at develop. stage and main get only fast-forwards, behind an approved promotion, so dev, stg and prd run the same commit. The contract: branch-promotion.md holds the rules. promote-release runs a promotion. set-up-terraform-pipeline wires the CI/CD that enforces it. Tool guides: Picture-first guides for Brevo, Airtable and Aircall: the parts, before and after, how it flows, the traps, and links to the official docs. Start here: Open guides/tools/README.md" src="assets/readme/ops-v2-dark.svg" width="100%">
+</picture>
+</p>
 
-Every change enters at `develop`. `stage` and `main` receive only fast-forwards, through an
-approved promotion, so `dev`, `stg` and `prd` run the same commit. The contract:
-[branch-promotion.md](skills/core/_shared/branch-promotion.md) — run a promotion with
-[promote-release](skills/core/promote-release/SKILL.md), wire the pipeline that enforces it
-with [set-up-terraform-pipeline](skills/infra/set-up-terraform-pipeline/SKILL.md).
+<p align="center">
+<a href="skills/core/_shared/branch-promotion.md"><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-17-v2-light.svg"><img alt="Branch promotion (skills/core/_shared/branch-promotion.md)" src="assets/readme/links-17-v2-dark.svg" width="32%"></picture></a>
+<a href="skills/core/promote-release/SKILL.md"><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-18-v2-light.svg"><img alt="Promote release (skills/core/promote-release/SKILL.md)" src="assets/readme/links-18-v2-dark.svg" width="32%"></picture></a>
+<a href="skills/infra/set-up-terraform-pipeline/SKILL.md"><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-19-v2-light.svg"><img alt="Terraform pipeline (skills/infra/set-up-terraform-pipeline/SKILL.md)" src="assets/readme/links-19-v2-dark.svg" width="32%"></picture></a>
+</p>
 
-## // Tool guides: the tools outside the code
-
-Picture-first guides for Brevo, Airtable and Aircall: the parts, before → after, how it flows,
-the traps, and links to the official docs. Start at [guides/tools](guides/tools/README.md).
+<p align="center">
+<a href="guides/tools/README.md"><picture><source media="(prefers-color-scheme: light)" srcset="assets/readme/links-20-v2-light.svg"><img alt="Tool guides (guides/tools/README.md)" src="assets/readme/links-20-v2-dark.svg" width="32%"></picture></a>
+</p>
 
 <br>
 
