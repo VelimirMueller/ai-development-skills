@@ -5,7 +5,7 @@ description: Use when hosting on IONOS Cloud with the ionoscloud OpenTofu provid
 
 # Deploy to IONOS
 
-The same deploy contract as [deploy-to-hetzner](../deploy-to-hetzner/SKILL.md) on a different cloud: one VM per environment, the same Compose stack and Traefik, the same `deploy.sh` / `run.sh` interface ([deploy-script.md](../_shared/deploy-script.md)). Two things change: the infrastructure module (datacenter, LANs, ENTERPRISE server) and the database — DBaaS Postgres on a private LAN instead of Postgres in Compose. Why IONOS at all: [hosting-decision.md](../_shared/hosting-decision.md) (German contract, managed database, Managed Kubernetes).
+The same deploy contract as [deploy-to-hetzner](../deploy-to-hetzner/SKILL.md) on a different cloud: one VM per environment, the same Compose stack and Traefik, the same `deploy.sh` / `run.sh` interface ([deploy-script.md](../_shared/deploy-script.md)). Two things change: the infrastructure module (datacenter, LANs, ENTERPRISE server) and the database — DBaaS Postgres on a private LAN instead of Postgres in Compose. Why IONOS at all: [hosting-decision.md](../_shared/hosting-decision.md) (German contract, managed database, Managed Kubernetes). A flat-rate IONOS **VPS** from the Cloud Panel has no tofu provider: use [set-up-ionos-vps](../set-up-ionos-vps/SKILL.md).
 
 ## 1. Audit current state (change nothing)
 

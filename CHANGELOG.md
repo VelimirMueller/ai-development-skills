@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html): a new skill is a minor
 bump, a fix to an existing one is a patch.
 
+## [0.9.0] — 2026-10-22
+
+### Added
+- **`set-up-ionos-vps` (infraskills)** — takes over a flat-rate IONOS VPS from the Cloud Panel (not IONOS Cloud): key-first SSH, an idempotent `harden-host.sh` for Debian 13 (admin user, sshd drop-in that beats `50-cloud-init.conf`, unattended upgrades, fail2ban on the journal, swap, journal cap), the Cloud Panel firewall policy as the real firewall, sizing by role, snapshots vs backups; plus IONOS domains and subdomains (default records on new subdomains, CAA, null-mail records, rDNS, HTTP-01 vs DNS-01, Hosting vs Cloud DNS API). Run on a live 1 vCPU VPS. The set now stands at **81 skills across eight plugins**.
+
+### Changed
+- `deploy-to-ionos` and `hosting-decision.md` point to `set-up-ionos-vps` for VPS hosts.
+
 ## [0.8.0] — 2026-10-22
 
 ### Added
