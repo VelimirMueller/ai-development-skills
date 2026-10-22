@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 264" width="720" height="264" role="img" aria-label="Why a cloud phone system"><title>Why a cloud phone system</title><style>
+.bg{fill:#ffffff}.card{fill:#f6f3fb;stroke:#d9d3e6}.hub{fill:#fbe9fd;stroke:#c64fd6}
+.t{font:600 15px system-ui,-apple-system,Segoe UI,sans-serif;fill:#1d1b29}
+.s{font:13px system-ui,-apple-system,Segoe UI,sans-serif;fill:#5c5870}
+.h{font:700 17px system-ui,-apple-system,Segoe UI,sans-serif;fill:#1d1b29}
+.e{font:26px system-ui,'Apple Color Emoji','Segoe UI Emoji',sans-serif}
+.ln{stroke:#a59fb8;stroke-width:2;fill:none}.ar{fill:#a59fb8}
+.bad{fill:#fdeeee;stroke:#e3a5a5}.ok{fill:#eaf7f0;stroke:#9fd3b7}
+.bt{font:700 14px system-ui,sans-serif;fill:#b23a3a}.ot{font:700 14px system-ui,sans-serif;fill:#1c7a52}
+@media (prefers-color-scheme:dark){.bg{fill:#17151f}.card{fill:#221f2e;stroke:#3a3550}.hub{fill:#3a1f40;stroke:#c64fd6}
+.t,.h{fill:#f1eef8}.s{fill:#b3adc6}.ln{stroke:#6f6888}.ar{fill:#6f6888}
+.bad{fill:#3a2124;stroke:#7a3d42}.ok{fill:#1c3329;stroke:#3d7a5c}.bt{fill:#f08c8c}.ot{fill:#7fd6a8}}
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ar" d="M0 0L10 5L0 10z"/></marker></defs><rect class="bg" width="720" height="264" rx="14"/><text class="h" x="24" y="34">Why a cloud phone system</text><rect class="bad" x="24.0" y="50" width="324.0" height="190" rx="12"/><text class="bt" x="40.0" y="76">😩  Before</text><text class="bt" x="40.0" y="106">✗</text><text class="s" x="60.0" y="106">Staff call from private mobiles</text><text class="bt" x="40.0" y="136">✗</text><text class="s" x="60.0" y="136">A person leaves, the number goes too</text><text class="bt" x="40.0" y="166">✗</text><text class="s" x="60.0" y="166">Customers call and nobody picks up</text><text class="bt" x="40.0" y="196">✗</text><text class="s" x="60.0" y="196">No record of who called whom</text><text class="bt" x="40.0" y="226">✗</text><text class="s" x="60.0" y="226">Every call is typed into the CRM by hand</text><rect class="ok" x="372.0" y="50" width="324.0" height="190" rx="12"/><text class="ot" x="388.0" y="76">😌  After</text><text class="ot" x="388.0" y="106">✓</text><text class="s" x="408.0" y="106">Company numbers on every device</text><text class="ot" x="388.0" y="136">✓</text><text class="s" x="408.0" y="136">Numbers belong to the company</text><text class="ot" x="388.0" y="166">✓</text><text class="s" x="408.0" y="166">Calls route to the next free person</text><text class="ot" x="388.0" y="196">✓</text><text class="s" x="408.0" y="196">Every call is logged with data</text><text class="ot" x="388.0" y="226">✓</text><text class="s" x="408.0" y="226">The CRM logs calls by itself</text><text class="e" x="360.0" y="154.0" text-anchor="middle">➜</text></svg>

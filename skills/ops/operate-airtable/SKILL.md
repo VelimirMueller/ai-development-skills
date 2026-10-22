@@ -118,6 +118,7 @@ write and the payload listing. A migration verifies by record counts per table b
 ## References
 - [airtable-patterns.md](./airtable-patterns.md): the traps — scopes, IDs over names, batching
   and limits, webhooks, automations, table ownership, environment separation.
+- [Airtable tool guide](../../../guides/tools/airtable/README.md): the picture version for people.
 - [cli-toolbox](../_shared/cli-toolbox.md), [stack-versions](../_shared/stack-versions.md).
 - [manage-secrets](../../infra/manage-secrets/SKILL.md).
 - [security-baseline](../../core/_shared/security-baseline.md).

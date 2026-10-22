@@ -1,0 +1,532 @@
+{
+ "brevo/img/map.svg": {
+  "kind": "hub",
+  "title": "Brevo — the parts",
+  "center": "📮 Brevo account",
+  "parts": [
+   [
+    "👤",
+    "Contacts",
+    [
+     "one person,",
+     "with attributes"
+    ]
+   ],
+   [
+    "🗂️",
+    "Lists",
+    [
+     "groups you",
+     "send to"
+    ]
+   ],
+   [
+    "🎨",
+    "Templates",
+    [
+     "the look, with",
+     "{{ params }} gaps"
+    ]
+   ],
+   [
+    "📣",
+    "Campaigns",
+    [
+     "one mail",
+     "to many people"
+    ]
+   ],
+   [
+    "⚡",
+    "Transactional",
+    [
+     "one mail to one",
+     "person, by trigger"
+    ]
+   ],
+   [
+    "🔁",
+    "Automations",
+    [
+     "if this happens,",
+     "send that"
+    ]
+   ],
+   [
+    "🛡️",
+    "Senders & domain",
+    [
+     "SPF · DKIM ·",
+     "DMARC proof"
+    ]
+   ],
+   [
+    "🔔",
+    "Webhooks",
+    [
+     "delivered, opened,",
+     "bounced → you"
+    ]
+   ]
+  ]
+ },
+ "brevo/img/before-after.svg": {
+  "kind": "before_after",
+  "title": "Why a mail platform at all",
+  "before": [
+   "Mails go out from a personal inbox",
+   "Contact lists live in Excel files",
+   "Nobody knows who got or opened it",
+   "Mails land in the spam folder",
+   "No proof that a person said yes"
+  ],
+  "after": [
+   "Mails go out from your own domain",
+   "One contact list, always current",
+   "Every send, open, bounce is logged",
+   "Domain proof keeps you out of spam",
+   "Opt-in is recorded with a date"
+  ]
+ },
+ "brevo/img/flow-transactional.svg": {
+  "kind": "flow",
+  "title": "How a transactional mail travels",
+  "steps": [
+   [
+    "🖥️",
+    "Your app",
+    [
+     "something happens",
+     "(order, sign-up)"
+    ]
+   ],
+   [
+    "🔑",
+    "Brevo API",
+    [
+     "template id +",
+     "params, API key"
+    ]
+   ],
+   [
+    "🎨",
+    "Template",
+    [
+     "Brevo fills",
+     "the gaps"
+    ]
+   ],
+   [
+    "📬",
+    "Inbox",
+    [
+     "sent from your",
+     "checked domain"
+    ]
+   ],
+   [
+    "🔔",
+    "Webhook",
+    [
+     "delivered / bounced",
+     "/ opened"
+    ]
+   ],
+   [
+    "🖥️",
+    "Your app",
+    [
+     "stores the",
+     "result"
+    ]
+   ]
+  ]
+ },
+ "brevo/img/flow-marketing.svg": {
+  "kind": "flow",
+  "title": "How a person joins a newsletter",
+  "steps": [
+   [
+    "📝",
+    "Form",
+    [
+     "person enters",
+     "an email"
+    ]
+   ],
+   [
+    "✉️",
+    "Confirm mail",
+    [
+     "double opt-in:",
+     "click to confirm"
+    ]
+   ],
+   [
+    "🗂️",
+    "List",
+    [
+     "contact lands",
+     "in the list"
+    ]
+   ],
+   [
+    "📣",
+    "Campaign",
+    [
+     "you send to",
+     "the list"
+    ]
+   ]
+  ],
+  "note": "No click on the confirm link → no contact. That click is your legal proof."
+ },
+ "airtable/img/map.svg": {
+  "kind": "hub",
+  "title": "Airtable — the parts",
+  "center": "🗃️ Base",
+  "parts": [
+   [
+    "📋",
+    "Tables",
+    [
+     "one kind of thing",
+     "(orders, people)"
+    ]
+   ],
+   [
+    "🔤",
+    "Fields",
+    [
+     "columns with a",
+     "type (date, link)"
+    ]
+   ],
+   [
+    "📄",
+    "Records",
+    [
+     "rows — one",
+     "real thing each"
+    ]
+   ],
+   [
+    "🔗",
+    "Linked records",
+    [
+     "a field that points",
+     "to another table"
+    ]
+   ],
+   [
+    "👓",
+    "Views",
+    [
+     "a saved filter",
+     "and sort"
+    ]
+   ],
+   [
+    "🧩",
+    "Interfaces",
+    [
+     "simple screens",
+     "for people"
+    ]
+   ],
+   [
+    "📝",
+    "Forms",
+    [
+     "let outsiders",
+     "add records"
+    ]
+   ],
+   [
+    "⚡",
+    "Automations",
+    [
+     "trigger → actions",
+     "(mail, script)"
+    ]
+   ]
+  ]
+ },
+ "airtable/img/before-after.svg": {
+  "kind": "before_after",
+  "title": "Why a base instead of a spreadsheet",
+  "before": [
+   "\"final_v3.xlsx\" sent by mail",
+   "Customer name typed in 5 places",
+   "Anyone can type anything in a cell",
+   "Each team builds its own copy",
+   "Someone copies data by hand"
+  ],
+  "after": [
+   "One base, always the latest",
+   "Type it once, link it everywhere",
+   "Fields have types: date, select, link",
+   "Each team gets its own view",
+   "Automations and the API move data"
+  ]
+ },
+ "airtable/img/flow-automation.svg": {
+  "kind": "flow",
+  "title": "How an automation works",
+  "steps": [
+   [
+    "🧑",
+    "A person",
+    [
+     "fills a form or",
+     "edits a record"
+    ]
+   ],
+   [
+    "🎯",
+    "Trigger",
+    [
+     "\"record created\"",
+     "or \"matches view\""
+    ]
+   ],
+   [
+    "⚙️",
+    "Actions",
+    [
+     "update, send mail,",
+     "run a script"
+    ]
+   ],
+   [
+    "📣",
+    "Result",
+    [
+     "Slack, mail,",
+     "or another app"
+    ]
+   ]
+  ],
+  "note": "Each base has a monthly limit of automation runs. Check your plan."
+ },
+ "airtable/img/flow-api.svg": {
+  "kind": "flow",
+  "title": "How another app talks to Airtable",
+  "steps": [
+   [
+    "🖥️",
+    "Your app",
+    [
+     "needs or changes",
+     "data"
+    ]
+   ],
+   [
+    "🔑",
+    "Token",
+    [
+     "a personal access",
+     "token with scopes"
+    ]
+   ],
+   [
+    "🌐",
+    "Web API",
+    [
+     "max 5 calls per",
+     "second per base"
+    ]
+   ],
+   [
+    "🗃️",
+    "Base",
+    [
+     "records come back,",
+     "100 per page"
+    ]
+   ]
+  ],
+  "note": "Use table and field IDs (tbl…, fld…), not names — names change, IDs do not."
+ },
+ "aircall/img/map.svg": {
+  "kind": "hub",
+  "title": "Aircall — the parts",
+  "center": "📞 Aircall account",
+  "parts": [
+   [
+    "☎️",
+    "Numbers",
+    [
+     "phone numbers",
+     "the company owns"
+    ]
+   ],
+   [
+    "🧑‍💼",
+    "Users",
+    [
+     "people with",
+     "a paid seat"
+    ]
+   ],
+   [
+    "👥",
+    "Teams",
+    [
+     "groups that ring",
+     "together"
+    ]
+   ],
+   [
+    "🔀",
+    "Call flows",
+    [
+     "opening hours,",
+     "\"press 1 for…\""
+    ]
+   ],
+   [
+    "💻",
+    "Workspace",
+    [
+     "the phone app:",
+     "desktop, web, mobile"
+    ]
+   ],
+   [
+    "🔌",
+    "Integrations",
+    [
+     "CRM shows and",
+     "logs every call"
+    ]
+   ],
+   [
+    "📊",
+    "Analytics",
+    [
+     "missed, answered,",
+     "wait times"
+    ]
+   ],
+   [
+    "🔔",
+    "API & webhooks",
+    [
+     "your app hears",
+     "about each call"
+    ]
+   ]
+  ]
+ },
+ "aircall/img/before-after.svg": {
+  "kind": "before_after",
+  "title": "Why a cloud phone system",
+  "before": [
+   "Staff call from private mobiles",
+   "A person leaves, the number goes too",
+   "Customers call and nobody picks up",
+   "No record of who called whom",
+   "Every call is typed into the CRM by hand"
+  ],
+  "after": [
+   "Company numbers on every device",
+   "Numbers belong to the company",
+   "Calls route to the next free person",
+   "Every call is logged with data",
+   "The CRM logs calls by itself"
+  ]
+ },
+ "aircall/img/flow-inbound.svg": {
+  "kind": "flow",
+  "title": "How an incoming call travels",
+  "steps": [
+   [
+    "📱",
+    "Customer",
+    [
+     "calls your",
+     "number"
+    ]
+   ],
+   [
+    "🔀",
+    "Call flow",
+    [
+     "open? which team?",
+     "\"press 1\""
+    ]
+   ],
+   [
+    "👥",
+    "Team rings",
+    [
+     "first free",
+     "person answers"
+    ]
+   ],
+   [
+    "💻",
+    "Workspace",
+    [
+     "agent talks,",
+     "adds a note"
+    ]
+   ],
+   [
+    "🔔",
+    "call.ended",
+    [
+     "webhook, about",
+     "30 s later"
+    ]
+   ],
+   [
+    "🗂️",
+    "CRM / your app",
+    [
+     "stores the",
+     "call data"
+    ]
+   ]
+  ]
+ },
+ "aircall/img/flow-outbound.svg": {
+  "kind": "flow",
+  "title": "How an outgoing call works",
+  "steps": [
+   [
+    "🗂️",
+    "CRM",
+    [
+     "agent clicks",
+     "a phone number"
+    ]
+   ],
+   [
+    "☎️",
+    "Pick a number",
+    [
+     "which company",
+     "number shows"
+    ]
+   ],
+   [
+    "📞",
+    "Aircall dials",
+    [
+     "the customer",
+     "sees that number"
+    ]
+   ],
+   [
+    "📝",
+    "Logged",
+    [
+     "duration, outcome",
+     "back in the CRM"
+    ]
+   ]
+  ]
+ }
+}
