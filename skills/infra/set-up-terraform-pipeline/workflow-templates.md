@@ -1158,6 +1158,14 @@ jobs:
           elif [ "$sha" = "$current" ]; then
             echo "::notice::$BRANCH already is $SOURCE ($sha); deploy without a fast-forward"
             fast_forward=false
+          elif [ "$TARGET" = "stg-hotfix" ]; then
+            # stage catches up with a merged hotfix: main is ahead of stage until this push, and the
+            # hotfix PR into main was the review, so the invariant and previous-env checks do not apply.
+            if ! git merge-base --is-ancestor "$current" "$sha"; then
+              echo "::error::stage is not an ancestor of main@$sha; a fast-forward is impossible"
+              exit 1
+            fi
+            hotfix=true
           else
             # Whatever moves must already contain main, or a prd hotfix would be dropped.
             if ! git merge-base --is-ancestor origin/main "$sha"; then

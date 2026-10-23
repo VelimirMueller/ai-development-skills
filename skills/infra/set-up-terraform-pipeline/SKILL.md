@@ -145,7 +145,7 @@ grep -rn "uses:" .github/workflows | grep -vE "@[0-9a-f]{40}|uses: \./"   # expe
 ```
 
 ```bash
-pnpm --dir <fleet-standard> fleet check .                             # expect: Result: conforms
+pnpm --dir <fleet-standard> fleet check .   # <fleet-standard> = a clone of VelimirMueller/fleet-standard; expect: Result: conforms
 ```
 
 End to end, in this order:

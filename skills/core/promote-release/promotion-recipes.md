@@ -22,7 +22,7 @@ SHA=$(git rev-parse origin/stage)
 git merge-base --is-ancestor origin/main origin/stage || exit 1
 git log --oneline origin/main..$SHA
 git push origin "$SHA:refs/heads/main"                               # no --force
-gh workflow run infra.yml --ref main -f environment=prd -f mode=apply
+gh workflow run infra.yml --ref main -f environment=prd -f mode=apply    # only without promote.yml
 ```
 
 ## Hotfix on main — both paths
