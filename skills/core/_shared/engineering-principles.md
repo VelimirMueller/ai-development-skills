@@ -93,6 +93,11 @@ Each principle states why it holds and when to break it. A rule without its exce
 **How to apply:** Reproduce, bisect to the introducing change, test one hypothesis at a time, then fix the cause and add a regression test. See [debug-systematically](../../craft/debug-systematically/SKILL.md).
 **When to deviate:** An incident in production — stop the bleeding first, then debug the cause off the hot path.
 
+## Principle: Isolate shared mutable state
+**Why:** Two paths that read and write the same state without a fixed order produce races that reproduce rarely and corrupt data; a concurrency bug is the one a unit test never catches.
+**How to apply:** Give every piece of shared state one owner — a mutex, an actor, a single-threaded loop, or a transactional store — or make it immutable and exchange it by message. Prefer copies and immutable data over locks; keep any locked section short and free of calls that could lock again.
+**When to deviate:** A path that owns its data end to end (a CLI, a request handler, a batch job) needs no coordination — the risk appears only at the first shared boundary.
+
 ## Using these in a skill
 
 A skill links here instead of restating. If a skill's rule departs from a principle, its `When to deviate` section says which principle and why.

@@ -103,6 +103,18 @@ Distilled from the book *Roots of UI/UX Design* (2024). A project design system 
 - Desktop tabs switch context without navigation; mobile bottom tabs = top-level screens, ≤ 5.
 - Keep navigation consistent, uncluttered, responsive; icons in navbars use tint or 50-60% opacity, never the text color; navbar radius > 8px matches its buttons.
 
+### Sidebar
+
+- Separate the two jobs: high-frequency navigation (resume work, switch view) sits in the top zone; low-frequency configuration (settings, integrations) sits in a bottom zone or a collapsed "more" group. Mixing them flattens the hierarchy.
+- Group the primary list by recency (Today / Yesterday / This week) with sticky headers. A flat unsorted list fails the ten-second scan.
+- Mark exactly one item current with a filled or tinted row, not a checkmark alone; a colour-only mark fails colour-blind users, so pair it with a shape or label.
+- A collapse toggle remembers its state per project or per user. A sidebar that resets to full width on every launch fights the user.
+- Rows honour the MUST targets (40px) and AA contrast; truncate long titles with a tooltip, never silent clipping.
+- Put search or a quick-switch (Cmd-K) above the list; power users navigate by keyboard, so arrow keys and Enter must move and open.
+- Badges show count and colour, never colour alone; hide a badge at zero instead of showing "0".
+- The first-run list is never blank: an empty state with one clear action beats an empty panel.
+- Collapse/expand animation respects `prefers-reduced-motion`.
+
 ## Mobile
 
 - ~54% of traffic is mobile — mobile-first is the default posture.
@@ -118,6 +130,22 @@ Distilled from the book *Roots of UI/UX Design* (2024). A project design system 
 - Legal: anchor menu with scrollspy (section highlight) over long text.
 - Chat: grouped history with timestamps + search.
 - Admin: charts for overview, tables with sort/filter/pagination for detail, project cards with deadlines.
+
+## States (empty, loading, error, progress)
+
+- Every view has four states designed, not discovered: empty, loading, error, content. A view that designs only the happy path breaks on the first real user.
+- Empty: one short headline plus one clear action. An illustration helps, but the action is the point.
+- Loading: skeletons match the final layout's shape and size (not a single spinner); a spinner is for waits under ~1s, a skeleton or progress bar for longer.
+- Error: name what went wrong and give the fix or a retry. Never a bare error code or "something went wrong".
+- Progress: an async trigger shows a state on itself (disabled + spinner), then a result (success) or a fixable failure. A button that does nothing for two seconds looks broken.
+
+## Accessibility
+
+- Every interactive element is reachable and operable by keyboard: logical tab order, a visible focus ring, Enter/Space for buttons, arrows for menus.
+- Semantics over sight: labelled controls, one H1 per page, alt text that states the image's job. Screen readers read the DOM, not the pixels.
+- Colour is never the only signal (state, status, links): pair it with a shape, icon or text.
+- Motion respects `prefers-reduced-motion`; a user who asked for less motion gets none.
+- The MUST core's contrast and touch-target rules are accessibility rules, not decoration.
 
 ## Working with an existing design system
 
