@@ -138,13 +138,21 @@ jobs:
       - name: Fail when a job failed or a required stage was skipped
         env:
           CHANGES: ${{ needs.changes.result }}
+          DRAFT: ${{ github.event.pull_request.draft || false }}
           CODE: ${{ needs.changes.outputs.code }}
           RESULTS: ${{ join(needs.*.result, ' ') }}
           LINT: ${{ needs.lint.result }}
           UNIT: ${{ needs.unit.result }}
           BUILD: ${{ needs.build.result }}
+          E2E: ${{ needs.e2e.result }}
+          E2E_ASKED: ${{ github.event_name == 'workflow_dispatch' && inputs.e2e }}
         run: |
-          [ "$CHANGES" = "success" ] || { echo "::error::changes ended as $CHANGES"; exit 1; }
+          # changes is skipped only on a draft PR; then nothing else ran and the check passes
+          case "$CHANGES" in
+            success) ;;
+            skipped) [ "$DRAFT" = "true" ] || { echo "::error::changes was skipped"; exit 1; } ;;
+            *) echo "::error::changes ended as $CHANGES"; exit 1 ;;
+          esac
           for r in $RESULTS; do
             case "$r" in success|skipped) ;; *) echo "::error::a job ended as $r"; exit 1 ;; esac
           done
@@ -152,6 +160,9 @@ jobs:
             for r in "$LINT" "$UNIT" "$BUILD"; do
               [ "$r" = "success" ] || { echo "::error::a required stage did not run"; exit 1; }
             done
+          fi
+          if [ "$E2E_ASKED" = "true" ] && [ "$E2E" != "success" ]; then
+            echo "::error::e2e was asked for and ended as $E2E"; exit 1
           fi
 ```
 
@@ -1267,10 +1278,14 @@ jobs:
         run: |
           set -euo pipefail
           git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${REPO}.git"
-          git fetch --quiet origin stage
-          # Re-check: the branch may have moved during the approval wait.
+          git fetch --quiet origin stage main
+          # Re-check: the branches may have moved during the approval wait.
           if ! git merge-base --is-ancestor origin/stage "$SHA"; then
             echo "::error::stage moved and is no longer an ancestor of $SHA; start a new promotion"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor origin/main "$SHA"; then
+            echo "::error::main moved (a hotfix?) and is not in $SHA; back-merge main, then start a new promotion"
             exit 1
           fi
           # No --force: git refuses anything that is not a fast-forward.
@@ -2263,6 +2278,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Check that the plan run is a green infra.yml run on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.plan_run_id }}
+        run: |
+          set -euo pipefail
+          read -r branch path conclusion < <(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '"\(.head_branch) \(.path) \(.conclusion)"')
+          if [ "$branch" != "main" ] || [ "$path" != ".github/workflows/infra.yml" ] || [ "$conclusion" != "success" ]; then
+            echo "::error::run $RUN_ID is $path on $branch ($conclusion); only a green infra.yml run on main holds a prd plan"
+            exit 1
+          fi
       - name: Download the saved prd plan
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
