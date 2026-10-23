@@ -1,6 +1,6 @@
 ---
 name: set-up-terraform-pipeline
-description: Use when a repo runs Terraform or OpenTofu on GitHub Actions — Azure or AWS via OIDC, develop/stage/main promotion with approval gates, saved plans applied after approval, and weekly drift detection.
+description: Use when a repo runs Terraform or OpenTofu on GitHub Actions — Azure or AWS via OIDC, develop/stage/main promotion with approval gates, manual deploys only, saved plans applied after approval, drift detection, fleet-standard conformant.
 ---
 
 # Set Up Terraform Pipeline
@@ -9,7 +9,9 @@ Infrastructure changes follow the same branch-promotion contract as application 
 environment, a human approves the plan, `apply` runs only the saved plan — never a re-plan. Contract:
 [branch-promotion](../../core/_shared/branch-promotion.md). This skill generates the full pipeline; the
 file-by-file content is [workflow-templates.md](./workflow-templates.md), the reasons are
-[terraform-pipeline-patterns.md](./terraform-pipeline-patterns.md).
+[terraform-pipeline-patterns.md](./terraform-pipeline-patterns.md). The files follow the fleet standard
+(`VelimirMueller/fleet-standard`); a repo made from them passes `fleet check` with no exception record. Every plan
+and apply starts by hand (`workflow_dispatch`): a merge or a push deploys nothing.
 
 ## 1. Audit current state (change nothing)
 
@@ -32,7 +34,8 @@ profile, detect from the files above; suggest `set-up-stack-profile` when the an
 
 - No workflows and no `terraform/`/`infra/` → full setup (steps 3 to 7).
 - Workflows exist but break rules (floating tags, `-auto-approve` on a fresh plan, static cloud keys, no `permissions:{}`,
-  a PR plan that takes the state lock) → apply only the delta; list each fix before editing.
+  a plan or apply on `push` or `pull_request`, a `schedule`, no `concurrency` or `timeout-minutes`) → apply only the
+  delta; list each fix before editing. `fleet check .` lists the breaks by rule ID.
 - Everything already follows [terraform-pipeline-patterns.md](./terraform-pipeline-patterns.md) → exit "already in
   place", run step 7, stop.
 - Tell the user in one line which of the three applies.
@@ -47,10 +50,12 @@ profile, detect from the files above; suggest `set-up-stack-profile` when the an
 
 ## 4. Prepare the repo once (needs admin)
 
-`scripts/setup-github.sh` (in [workflow-templates.md](./workflow-templates.md)) creates, idempotently: the nine GitHub
-environments (`dev`/`stg`/`prd`, `dev-plan`/`stg-plan`/`prd-plan`, `promote-stg`/`promote-prd`, `tf-apply-prd`), the
-required reviewers on every gate environment, the deployment branch policies, the `stage`/`main` rulesets with the
-promotion App in the bypass list, and the OIDC subject read-out. Create and install the promotion GitHub App
+`scripts/setup-github.sh <owner/repo> <reviewer-login> <app-id>` (in [workflow-templates.md](./workflow-templates.md))
+creates, idempotently: the nine GitHub environments (`dev`/`stg`/`prd`, `dev-plan`/`stg-plan`/`prd-plan`,
+`promote-stg`/`promote-prd`, `tf-apply-prd`), one user reviewer on every gate environment (self-review allowed,
+no admin bypass), the deployment branch policies, one ruleset per branch (`develop`, `stage`, `main`; the promotion
+App is the only bypass actor on `stage` and `main`), and the OIDC subject read-out. Public repos only: a private
+repo on GitHub Free has no environments or rulesets (`private-free` variant in the templates). Create and install the promotion GitHub App
 by hand first (Contents: write on this repo only); the script only adds it as the ruleset bypass actor. Run it, then create the cloud
 identities it prints the subject for:
 
@@ -95,16 +100,21 @@ Copy from [workflow-templates.md](./workflow-templates.md), then fill in the pla
 
 | File | Role |
 |---|---|
-| `.github/workflows/infra.yml` | Entry point. `setup` resolves env from ref, then `check`, `plan`, `gate` (prd only, only if changes), `apply`, `smoke`, `conclusion`. No logic beyond wiring. |
-| `.github/workflows/_tf-check.yml` | `fmt -check -recursive`, `validate` every env with `init -backend=false`, tflint, trivy config, `terraform test`, version-pin guard. Credential-free. |
-| `.github/workflows/_tf-plan.yml` | OIDC login, `init`, `plan -detailed-exitcode -out tfplan`, destroy/replace guard, summary, upload `tfplan-<env>-<sha>`, PR comment. |
-| `.github/workflows/_tf-apply.yml` | Download `tfplan-<env>-<sha>`, verify sha, `apply tfplan`. Binds `environment: <env>`. |
-| `.github/workflows/promote.yml` | `preflight` (ff check, `main` contained, previous env green for the SHA, nothing in flight, changelog) → `push` (waits for the `promote-<target>` approval, App token, fast-forward) → `verify`. Targets `stg`, `prd`, `stg-hotfix`. |
-| `.github/workflows/branch-sync.yml` | Assert `main ⊆ stage ⊆ develop`; open the back-merge PR or the reconcile issue. |
+| `.github/workflows/ci.yml` | PR check: `changes`, `lint` (workflow lint + Terraform checks), `unit`, `e2e` (dispatch only), `build`, `conclusion` (the required check). |
+| `.github/workflows/_ci-lint.yml` | The `lint` stage: actionlint + zizmor, and `_tf-check.yml`. Credential-free. |
+| `.github/workflows/infra.yml` | Entry point, dispatch only. `setup` resolves env from ref, then `plan`, `gate` (prd only, only if changes), `apply`, `smoke`, `tf-conclusion`. No logic beyond wiring. |
+| `.github/workflows/_tf-check.yml` | One job: version-pin guard, `fmt -check -recursive`, `validate` every env with `init -backend=false`, `test`, tflint, trivy config. |
+| `.github/workflows/_tf-plan.yml` | OIDC login, `init`, `plan -detailed-exitcode -out tfplan`, destroy/replace count, summary, upload `tfplan-<env>-<sha>`. |
+| `.github/workflows/_tf-apply.yml` | Download `tfplan-<env>-<sha>`, verify it, `apply tfplan`. Binds `environment: <env>`. |
+| `.github/workflows/deploy.yml` | `dev` deploy, dispatch on `develop`: `setup` (ref + green PR check guard) → `deploy-dev` (starts `infra.yml`, waits). |
+| `.github/workflows/promote.yml` | `setup` → `preflight` (ff check, invariant, previous env green, nothing in flight, changelog) → `e2e` (stg) → `promote-stg` / `promote-prd` (approval, App-token fast-forward, deploy, wait). Targets `stg`, `prd`, `stg-hotfix`. |
+| `.github/workflows/branch-sync.yml` | On push: assert `main ⊆ stage ⊆ develop`; open the back-merge PR or the reconcile issue. |
 | `.github/workflows/branch-policy.yml` | Required check: PR into `stage` fails; PR into `main` passes only `hotfix/*`. |
-| `.github/workflows/tf-drift.yml` | Weekly read-only plan per env; exit 2 opens one issue per env. |
-| `.github/workflows/workflow-lint.yml` | actionlint + zizmor, blocking. |
-| `.github/actionlint.yaml`, `.tflint.hcl`, `.github/dependabot.yml` | config |
+| `.github/workflows/tf-drift.yml` | Read-only plan per env, started by hand; exit 2 opens one issue per env. |
+| `.github/workflows/tf-apply-prd.yml` | `private-free` repos only: apply a saved prd plan by run id. |
+| `scripts/deploy-env.sh` | Starts `infra.yml` on a branch and waits for the run of the SHA. |
+| `.github/actionlint.yaml`, `.github/zizmor.yml`, `.tflint.hcl`, `.github/dependabot.yml` | config |
+| `terraform/` | the root: fixed file set, `envs/<env>.tfvars` + `envs/<env>.backend.hcl`, `.terraform-version`, lock file |
 | `scripts/setup-github.sh` | the step-4 idempotent setup |
 
 Keep the rules from the templates: pin every third-party `uses:` to a full SHA with the version in a trailing comment;
@@ -116,8 +126,10 @@ Keep the rules from the templates: pin every third-party `uses:` to a full SHA w
   AWS role ARN) live as **variables** on each environment — they are identifiers, not credentials. Scope `ARM_*` to the
   job that needs it, never the workflow.
 - **Promotion App credentials:** `PROMOTE_APP_ID` (variable) and `PROMOTE_APP_PRIVATE_KEY` (secret) live on
-  `promote-stg` and `promote-prd` only, so the
-  `push` job can mint an installation token (a `GITHUB_TOKEN` push does not start the deploy pipeline).
+  `promote-stg` and `promote-prd` only, so only the approved `promote-stg`/`promote-prd` job can mint an
+  installation token. The App is the only bypass actor on the `stage`/`main` rulesets.
+- **`VERSION_URL`** (variable, per deploy environment): the endpoint that returns `{ sha, env }`; `smoke` polls it.
+  Without it, `smoke` records the deployment and warns.
 - **Deploy identities in one closed table** (`.github/deploy-identities.yaml`): the plan job asserts its effective client
   id / role is the read-only identity, the apply job asserts it matches the committed writer for that environment.
 - The promotion contract this enforces is [branch-promotion](../../core/_shared/branch-promotion.md).
@@ -132,17 +144,22 @@ pipx run zizmor==1.30.1 .github/workflows                             # injectio
 grep -rn "uses:" .github/workflows | grep -vE "@[0-9a-f]{40}|uses: \./"   # expect: no output
 ```
 
+```bash
+pnpm --dir <fleet-standard> fleet check .                             # expect: Result: conforms
+```
+
 End to end, in this order:
 
-1. Open a PR → `check` runs (credential-free), plus a dev plan; a sticky comment shows the dev plan.
-2. Merge → dev plan + apply with no human gate.
-3. Run `promote.yml` with `target: stg` → the `promote-stg` approval, then `stage` = the `develop` SHA, then stg apply.
-4. Run `promote.yml` with `target: prd` → the `promote-prd` approval, a plan that has changes → the `tf-apply-prd` gate
-   → apply → smoke test reports the deployed SHA.
-5. `branch-sync.yml` is green; the weekly `tf-drift.yml` opens no issue (exit 0 or no "changes" issue per env).
+1. Open a PR → `ci.yml` runs `lint` (Terraform checks and workflow lint, credential-free) and `conclusion`. No plan.
+2. Merge → nothing deploys. `gh workflow run deploy.yml --ref develop` → dev plan + apply with no human gate.
+3. `gh workflow run promote.yml -f target=stg` → `e2e`, the `promote-stg` approval, `stage` = the `develop` SHA,
+   then the stg plan + apply.
+4. `gh workflow run promote.yml -f target=prd` → the `promote-prd` approval, a plan that has changes → the
+   `tf-apply-prd` gate → apply → smoke test reports the deployed SHA.
+5. `branch-sync.yml` is green; `gh workflow run tf-drift.yml` opens no issue (exit 0 per env).
 
 ## References
-- [workflow-templates.md](./workflow-templates.md): the nine workflow files plus config and setup script, copy-ready.
+- [workflow-templates.md](./workflow-templates.md): the workflow files, the Terraform root, config and setup script, copy-ready.
 - [terraform-pipeline-patterns.md](./terraform-pipeline-patterns.md): why each rule exists, the safety rules, when to deviate.
 - [../../core/_shared/branch-promotion.md](../../core/_shared/branch-promotion.md): the promotion contract.
 - [../set-up-opentofu/SKILL.md](../set-up-opentofu/SKILL.md): OpenTofu layout, encryption, backend.

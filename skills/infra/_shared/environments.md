@@ -17,7 +17,7 @@ The contract every infra skill follows. Three environments: `dev`, `stg`, `prd`.
 **Why:** `prd` is where users and data are. A person who did not write the change must see it first, and the record must say who approved.
 **How to apply:**
 - Every change enters at `develop`; promotion to `stg` and `prd` is a fast-forward of the verified SHA, never a merge. The gates are the GitHub environments `promote-stg` and `promote-prd`, each with required reviewers. Contract: [branch-promotion](../../core/_shared/branch-promotion.md).
-- Infrastructure: `tofu plan` runs on the pull request; `tofu apply` runs from the saved plan file after approval. On `prd` the apply is additionally gated by `tf-apply-prd` — and only when the plan has changes. See [set-up-opentofu](../set-up-opentofu/SKILL.md), [set-up-terraform-pipeline](../set-up-terraform-pipeline/SKILL.md).
+- Infrastructure: the pull request runs only credential-free checks; every plan and apply starts by hand (`workflow_dispatch`), and `apply` runs the saved plan file. On `prd` the apply is additionally gated by `tf-apply-prd` — and only when the plan has changes. See [set-up-opentofu](../set-up-opentofu/SKILL.md), [set-up-terraform-pipeline](../set-up-terraform-pipeline/SKILL.md).
 - Application: the `prd` deploy job uses the same environment gate.
 - Private repositories on a plan without environment reviewers have a weaker gate. Say so in the README; do not pretend.
 **Anti-example:** `tofu apply -auto-approve` from a laptop against `prd`.
