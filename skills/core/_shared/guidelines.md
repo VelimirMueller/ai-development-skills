@@ -16,6 +16,9 @@ Distilled from the book *Roots of UI/UX Design* (2024). A project design system 
 - Forward action sits right, back sits left; swap them only to deter destructive actions.
 - Error messages say what went wrong and how to fix it. Never a bare "invalid input".
 - Navigation shows the primary pages first; mobile bottom tabs hold at most 5 items.
+- Every view has four states designed, not discovered: empty, loading, error, content. A view that designs only the happy path breaks on the first real user.
+- Every interactive element is keyboard-reachable and operable: logical tab order, a visible focus ring, Enter/Space for buttons, arrows for menus.
+- Colour is never the only signal — state, status and links pair colour with a shape, icon or text.
 
 ## Layout and grid
 
@@ -133,7 +136,6 @@ Distilled from the book *Roots of UI/UX Design* (2024). A project design system 
 
 ## States (empty, loading, error, progress)
 
-- Every view has four states designed, not discovered: empty, loading, error, content. A view that designs only the happy path breaks on the first real user.
 - Empty: one short headline plus one clear action. An illustration helps, but the action is the point.
 - Loading: skeletons match the final layout's shape and size (not a single spinner); a spinner is for waits under ~1s, a skeleton or progress bar for longer.
 - Error: name what went wrong and give the fix or a retry. Never a bare error code or "something went wrong".
@@ -141,9 +143,7 @@ Distilled from the book *Roots of UI/UX Design* (2024). A project design system 
 
 ## Accessibility
 
-- Every interactive element is reachable and operable by keyboard: logical tab order, a visible focus ring, Enter/Space for buttons, arrows for menus.
 - Semantics over sight: labelled controls, one H1 per page, alt text that states the image's job. Screen readers read the DOM, not the pixels.
-- Colour is never the only signal (state, status, links): pair it with a shape, icon or text.
 - Motion respects `prefers-reduced-motion`; a user who asked for less motion gets none.
 - The MUST core's contrast and touch-target rules are accessibility rules, not decoration.
 
