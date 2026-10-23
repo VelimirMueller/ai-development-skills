@@ -2095,7 +2095,8 @@ env_gate() {
   env_put "$1" <<JSON
 {
   "reviewers": [{"type": "User", "id": ${REVIEWER_ID}}],
-  "prevent_self_review": false
+  "prevent_self_review": false,
+  "can_admins_bypass": false
 }
 JSON
 }
