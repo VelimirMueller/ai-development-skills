@@ -22,3 +22,5 @@ docs
 frontend-book-baseline.md
 # Private tool notes (company-specific) live only on this machine
 guides/tools/_private/
+
+.worktrees/
