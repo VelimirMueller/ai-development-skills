@@ -7,17 +7,18 @@ The full catalogue, the install commands, the team setup, the run example and th
 One step per plugin (Claude Code 2.1.275 or later adds the marketplace on the way):
 
 ```text
-/plugin install devcore --marketplace VelimirMueller/claude-development-skills
-/plugin install frontendskills --marketplace VelimirMueller/claude-development-skills
-/plugin install backendskills --marketplace VelimirMueller/claude-development-skills
-/plugin install infraskills --marketplace VelimirMueller/claude-development-skills
-/plugin install opsskills --marketplace VelimirMueller/claude-development-skills
-/plugin install cliskills --marketplace VelimirMueller/claude-development-skills
-/plugin install aiskills --marketplace VelimirMueller/claude-development-skills
-/plugin install gameskills --marketplace VelimirMueller/claude-development-skills
+/plugin install devcore --marketplace VelimirMueller/ai-development-skills
+/plugin install craftskills --marketplace VelimirMueller/ai-development-skills
+/plugin install frontendskills --marketplace VelimirMueller/ai-development-skills
+/plugin install backendskills --marketplace VelimirMueller/ai-development-skills
+/plugin install infraskills --marketplace VelimirMueller/ai-development-skills
+/plugin install opsskills --marketplace VelimirMueller/ai-development-skills
+/plugin install cliskills --marketplace VelimirMueller/ai-development-skills
+/plugin install aiskills --marketplace VelimirMueller/ai-development-skills
+/plugin install gameskills --marketplace VelimirMueller/ai-development-skills
 ```
 
-Update with `/plugin marketplace update claude-development-skills`.
+Update with `/plugin marketplace update ai-development-skills`.
 
 ## The catalogue
 
@@ -170,13 +171,13 @@ trusts the folder gets the skills:
 ```json
 {
   "extraKnownMarketplaces": {
-    "claude-development-skills": {
-      "source": { "source": "github", "repo": "VelimirMueller/claude-development-skills" }
+    "ai-development-skills": {
+      "source": { "source": "github", "repo": "VelimirMueller/ai-development-skills" }
     }
   },
   "enabledPlugins": {
-    "devcore@claude-development-skills": true,
-    "backendskills@claude-development-skills": true
+    "devcore@ai-development-skills": true,
+    "backendskills@ai-development-skills": true
   }
 }
 ```
@@ -234,7 +235,7 @@ telemetry to one collector; one `deploy.sh` contract is all `deploy-to-<host>` e
      ▼
   ┌────────────────────────┐   reads first   ┌─────────────────────────────┐
   │  skill  (SKILL.md)     │ ──────────────▸ │  .claude/stack-profile.md   │
-  │  one of 80, 8 plugins  │                 │  written once by the wizard │
+  │  one of 93, 9 plugins  │                 │  written once by the wizard │
   └───────────┬────────────┘                 └─────────────────────────────┘
               │  1 audit   what is already there?
               │  2 apply   only the missing move, behind one seam

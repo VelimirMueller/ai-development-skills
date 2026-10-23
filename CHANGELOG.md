@@ -1,10 +1,21 @@
 # Changelog
 
-All notable changes to **claude-development-skills** are recorded here.
+All notable changes to **ai-development-skills** are recorded here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html): a new skill is a minor
 bump, a fix to an existing one is a patch.
+
+## [0.10.0] — 2026-10-23
+
+### Added
+- **`craftskills` — a new plugin with 12 skills** — language-agnostic software craft distilled from eight books (Head First Design Patterns, GoF Design Patterns, TypeScript Design Patterns, Clean Code, Clean Architecture, The Pragmatic Programmer, CLRS, Kotlin in Action): `apply-design-patterns` and `apply-design-principles` (design patterns), `write-readable-code`, `refactor-safely` and `write-clean-tests` (code craft), `apply-solid` and `enforce-dependency-rule` (architecture), `analyze-complexity`, `choose-data-structure` and `apply-algorithms` (algorithms), and `debug-systematically` and `slice-and-estimate` (engineering practice), with a `_shared/patterns-catalogue.md`. The set now stands at **93 skills across nine plugins**.
+
+### Changed
+- **Marketplace renamed `claude-development-skills` → `ai-development-skills`; repo renamed to `VelimirMueller/ai-development-skills`.** Install refs change to `<plugin>@ai-development-skills`; plugin names stay the same.
+
+### Migration
+- `/plugin marketplace remove claude-development-skills`, then `/plugin marketplace add VelimirMueller/ai-development-skills` and reinstall your plugins.
 
 ## [0.9.0] — 2026-10-22
 
