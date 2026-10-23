@@ -8,7 +8,7 @@ Copy-ready files for [set-up-terraform-pipeline](./SKILL.md). Rules and reasons:
 
 Status: on 2026-10-23 a repo rendered from these files (tier `deploys`, visibility `public`) passed `fleet check`
 with no exception record. Pins were resolved from the GitHub API on 2026-10-22 (`dorny/paths-filter` on
-2026-10-23). None of the workflows has run on GitHub yet; treat the first run in a real repo as the test. `VelimirMueller/fleet-workflows` has no `v1` tag yet (2026-10-23): until it does, the `unit`, `e2e` and `build` calls do not resolve.
+2026-10-23). None of the workflows has run on GitHub yet; treat the first run in a real repo as the test. `VelimirMueller/fleet-workflows` is released as `v0.0.1` (2026-10-23); the callers pin that tag.
 
 Fill in before the first run: `cloud: azure|aws|none` and `tool: terraform|tofu` in `infra.yml`, `tf-drift.yml` and
 `_ci-lint.yml`; `terraform/.terraform-version` (or `.opentofu-version`) with one exact version; per-environment variables (`ARM_CLIENT_ID`, `ARM_TENANT_ID`,
@@ -38,7 +38,7 @@ The one PR check workflow (stages 1 to 4). `changes` decides what runs, so the r
 reports (CI-COST-10); `lint` runs the workflow lint when `.github/workflows/**` changed (CI-LINT-03) and the Terraform
 static checks when `*.tf`, `*.tfvars` or the lock file changed (CI-LINT-04). `unit`, `e2e` and `build` are the app
 stages from the fleet reusable workflows; an app repo adds its language lint to `_ci-lint.yml`. `e2e` runs only by
-`workflow_dispatch` with `e2e: true` (CI-E2E-01). The callers pin `VelimirMueller/fleet-workflows` at `@v1`.
+`workflow_dispatch` with `e2e: true` (CI-E2E-01). The callers pin `VelimirMueller/fleet-workflows` at `@v0.0.1`.
 
 ```yaml
 name: ci
@@ -110,7 +110,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-unit.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-unit.yml@v0.0.1
     with:
       stack: node # node|bun|go|python|rust|generic; generic also needs command
 
@@ -119,7 +119,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.e2e }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v0.0.1
     with:
       stack: node # node|bun|go|python|rust|generic; generic also needs command
 
@@ -128,7 +128,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-build.yml@v1 # verify only; publishing is _build-publish.yml
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-build.yml@v0.0.1 # verify only; publishing is _build-publish.yml
     with:
       stack: node # node|bun|go|python|rust|generic; generic also needs command
 
@@ -1238,7 +1238,7 @@ jobs:
     if: needs.setup.outputs.env == 'stg'
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v0.0.1
     with:
       stack: node # node|bun|go|python|rust|generic; generic also needs command
       ref: ${{ needs.preflight.outputs.sha }}
