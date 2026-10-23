@@ -1,7 +1,7 @@
-# Contributing to claude-development-skills
+# Contributing to ai-development-skills
 
-This repo is one marketplace, `claude-development-skills`, with eight plugins: **devcore**
-(`skills/core`), **frontendskills** (`skills/frontend` + `skills/landing`), **backendskills**
+This repo is one marketplace, `ai-development-skills`, with nine plugins: **devcore**
+(`skills/core`), **craftskills** (`skills/craft`), **frontendskills** (`skills/frontend` + `skills/landing`), **backendskills**
 (`skills/backend`), **infraskills** (`skills/infra`), **opsskills** (`skills/ops`),
 **cliskills** (`skills/cli`), **aiskills** (`skills/ai`), and **gameskills** (`skills/game`).
 Each plugin is an entry in

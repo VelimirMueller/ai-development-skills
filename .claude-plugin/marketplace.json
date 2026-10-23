@@ -1,24 +1,24 @@
 {
-  "name": "claude-development-skills",
-  "description": "Senior engineering judgment as audit-first Claude Code skills, one plugin per domain: core (stack-profile wizard, security, workflow), frontend, backend, infra, CLI, AI, game and ops development (Azure, Entra ID, Exchange Online, AWS, Airtable, alerting). Enable only what your stack uses.",
+  "name": "ai-development-skills",
+  "description": "Senior engineering judgment as audit-first Claude Code skills, one plugin per domain: core workflow and contracts, software craft (design patterns, readable code, architecture, algorithms, debugging and estimation), frontend, backend, infra, CLI, AI, game and ops (Azure, Entra ID, Exchange Online, AWS, Airtable, alerting). Enable only what your stack uses.",
   "owner": {
     "name": "Velimir Mueller",
     "email": "velimir.mueller@googlemail.com"
   },
   "metadata": {
-    "version": "0.9.0"
+    "version": "0.10.0"
   },
   "plugins": [
     {
       "name": "devcore",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "The core every other plugin builds on: a one-time stack-profile wizard, on-demand skill authoring, toolchain and security audits, commit and PR writing, release promotion, and the shared security, logging and observability contracts.",
       "skills": [
         "./skills/core/"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "stack-profile",
         "wizard",
@@ -31,9 +31,35 @@
       ]
     },
     {
+      "name": "craftskills",
+      "source": "./",
+      "version": "0.10.0",
+      "description": "Language-agnostic software craft: design patterns and object-oriented principles, readable code, safe refactoring and clean tests, SOLID and the dependency rule, algorithms, complexity and data structures, and systematic debugging and estimation.",
+      "skills": [
+        "./skills/craft/"
+      ],
+      "dependencies": [
+        "devcore"
+      ],
+      "license": "MIT",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
+      "keywords": [
+        "design-patterns",
+        "solid",
+        "refactoring",
+        "clean-code",
+        "architecture",
+        "algorithms",
+        "data-structures",
+        "complexity",
+        "debugging",
+        "estimation"
+      ]
+    },
+    {
       "name": "frontendskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Vite-SPA app lifecycle for React 19 / Vue 3 (state, routing, forms, auth, testing, performance, a11y) plus a framework-agnostic landing-page catalogue (SEO, lead capture, content and copy audits).",
       "skills": [
         "./skills/frontend/",
@@ -43,7 +69,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "frontend",
         "react",
@@ -58,7 +84,7 @@
     {
       "name": "backendskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Backend services on TypeScript (Hono + Drizzle), Go, Python (FastAPI), Supabase and Next.js 16: API contracts, Postgres and migrations, auth, jobs, hardening, OpenTelemetry and tests.",
       "skills": [
         "./skills/backend/"
@@ -67,7 +93,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "backend",
         "hono",
@@ -83,7 +109,7 @@
     {
       "name": "infraskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Ship and run it: containers, OpenTofu, Terraform pipelines with approval gates, Vercel, Hetzner and IONOS deploys, a build-once-promote pipeline, secrets, and an OpenTelemetry collector.",
       "skills": [
         "./skills/infra/"
@@ -92,7 +118,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "infra",
         "opentofu",
@@ -110,7 +136,7 @@
     {
       "name": "opsskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Operate the platforms you deploy onto: Azure, Entra ID, Exchange Online, AWS and Airtable — the CLIs, sign-in, least privilege and the traps — plus alerting with SigNoz.",
       "skills": [
         "./skills/ops/"
@@ -119,7 +145,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "azure",
         "entra",
@@ -134,7 +160,7 @@
     {
       "name": "cliskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Build and release command-line tools that behave (exit codes, --json, config precedence) and set up a repo's dev toolchain (mise, task runner, git hooks).",
       "skills": [
         "./skills/cli/"
@@ -143,7 +169,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "cli",
         "mise",
@@ -155,7 +181,7 @@
     {
       "name": "aiskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "LLM features done properly: one provider seam, RAG pipelines with hybrid retrieval, evals in CI, MCP servers, and LLM-specific security.",
       "skills": [
         "./skills/ai/"
@@ -164,7 +190,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "llm",
         "rag",
@@ -177,7 +203,7 @@
     {
       "name": "gameskills",
       "source": "./",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "description": "Rust + Bevy game development: fast-compile scaffold, plugin-per-feature ECS architecture, asset loading, headless system tests, and performance.",
       "skills": [
         "./skills/game/"
@@ -186,7 +212,7 @@
         "devcore"
       ],
       "license": "MIT",
-      "homepage": "https://github.com/VelimirMueller/claude-development-skills",
+      "homepage": "https://github.com/VelimirMueller/ai-development-skills",
       "keywords": [
         "rust",
         "bevy",

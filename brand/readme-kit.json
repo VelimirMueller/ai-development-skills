@@ -27,7 +27,7 @@
       "key": "usage",
       "index": "04",
       "title": "USAGE",
-      "caption": "Eighty skills, condensed.",
+      "caption": "Ninety-three skills, condensed.",
       "art": "strip-flagship-4"
     },
     {
@@ -45,16 +45,16 @@
       "title": "The set in numbers",
       "items": [
         {
-          "value": "81",
+          "value": "93",
           "label": "skills across the set"
         },
         {
-          "value": "8",
+          "value": "9",
           "label": "plugins, one per domain"
         },
         {
           "value": "1",
-          "label": "marketplace: claude-development-skills"
+          "label": "marketplace: ai-development-skills"
         },
         {
           "value": "0",
@@ -86,8 +86,8 @@
       "type": "terminal",
       "title": "Quick start",
       "lines": [
-        "$ /plugin marketplace add VelimirMueller/claude-development-skills",
-        "$ /plugin install devcore@claude-development-skills",
+        "$ /plugin marketplace add VelimirMueller/ai-development-skills",
+        "$ /plugin install devcore@ai-development-skills",
         "# then ask Claude to \"set up my stack profile\""
       ]
     },
@@ -126,17 +126,17 @@
       "rows": [
         {
           "label": "Marketplace",
-          "value": "claude-development-skills",
+          "value": "ai-development-skills",
           "state": "ok"
         },
         {
           "label": "Version",
-          "value": "v0.9.0 · one version everywhere",
+          "value": "v0.10.0 · one version everywhere",
           "state": "ok"
         },
         {
           "label": "Plugins",
-          "value": "8 · 81 skills",
+          "value": "9 · 93 skills",
           "state": "ok"
         },
         {
@@ -155,7 +155,7 @@
       "key": "lead",
       "type": "lead",
       "title": "ABOUT",
-      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 81 skills across 8 plugins, shipped as the Claude Code marketplace `claude-development-skills`. It does not write your app. It tells you where the seams go."
+      "text": "Senior engineering judgment as audit-first Claude Code skills. One plugin per domain: 93 skills across 9 plugins, shipped as the Claude Code marketplace `ai-development-skills`. It does not write your app. It tells you where the seams go."
     },
     {
       "key": "what",
@@ -165,7 +165,7 @@
       "items": [
         {
           "lead": "One marketplace, MIT",
-          "text": "Ships as the Claude Code marketplace `claude-development-skills`: 81 skills in 8 plugins, licensed MIT."
+          "text": "Ships as the Claude Code marketplace `ai-development-skills`: 93 skills in 9 plugins, licensed MIT."
         },
         {
           "lead": "Stacks it covers",
@@ -209,7 +209,7 @@
         },
         {
           "lead": "Update",
-          "text": "Run `/plugin marketplace update claude-development-skills`."
+          "text": "Run `/plugin marketplace update ai-development-skills`."
         }
       ]
     },
@@ -221,7 +221,7 @@
       "nodes": [
         {
           "title": "SKILL.md",
-          "sub": "One of 73. Claude matches its Use when line."
+          "sub": "One of 93. Claude matches its Use when line."
         },
         {
           "title": "stack-profile.md",
@@ -263,35 +263,39 @@
       "title": "THE PLUGINS · EVERY SKILL IS IN REFERENCE.MD",
       "rows": [
         {
-          "cmd": "devcore@claude-development-skills",
+          "cmd": "devcore@ai-development-skills",
           "text": "The stack-profile wizard, security and toolchain audits, commit and PR writing, release promotion. **7 skills.**"
         },
         {
-          "cmd": "frontendskills@claude-development-skills",
+          "cmd": "craftskills@ai-development-skills",
+          "text": "Design patterns and OO principles, readable code, safe refactoring, clean tests, SOLID and the dependency rule, algorithms and data structures, debugging and estimation. **12 skills.**"
+        },
+        {
+          "cmd": "frontendskills@ai-development-skills",
           "text": "Vite-SPA lifecycle (React 19 / Vue 3) plus landing & content pages. **26 + 5 skills.**"
         },
         {
-          "cmd": "backendskills@claude-development-skills",
+          "cmd": "backendskills@ai-development-skills",
           "text": "Hono / Go / FastAPI services, Supabase, Next 16. **15 skills.**"
         },
         {
-          "cmd": "infraskills@claude-development-skills",
-          "text": "Containers, OpenTofu, Terraform pipelines with approval gates, deploys, secrets, OTel collector. **9 skills.**"
+          "cmd": "infraskills@ai-development-skills",
+          "text": "Containers, OpenTofu, Terraform pipelines with approval gates, deploys, secrets, OTel collector. **10 skills.**"
         },
         {
-          "cmd": "opsskills@claude-development-skills",
+          "cmd": "opsskills@ai-development-skills",
           "text": "Azure, Entra ID, Exchange Online, AWS, Airtable, alerting with SigNoz. **5 skills.**"
         },
         {
-          "cmd": "cliskills@claude-development-skills",
+          "cmd": "cliskills@ai-development-skills",
           "text": "Command-line tools and the dev toolchain. **3 skills.**"
         },
         {
-          "cmd": "aiskills@claude-development-skills",
+          "cmd": "aiskills@ai-development-skills",
           "text": "LLM seams, RAG, evals, MCP servers. **5 skills.**"
         },
         {
-          "cmd": "gameskills@claude-development-skills",
+          "cmd": "gameskills@ai-development-skills",
           "text": "Rust + Bevy games. **5 skills.**"
         }
       ]
@@ -406,8 +410,8 @@
       "columns": 2,
       "items": [
         {
-          "lead": "v0.9.0",
-          "text": "One marketplace, eight plugins, 81 skills."
+          "lead": "v0.10.0",
+          "text": "One marketplace, nine plugins, 93 skills."
         },
         {
           "lead": "Built and run",
@@ -484,7 +488,7 @@
         },
         {
           "label": "Changelog",
-          "sub": "CHANGELOG.md · v0.9.0",
+          "sub": "CHANGELOG.md · v0.10.0",
           "href": "CHANGELOG.md"
         },
         {
@@ -537,7 +541,7 @@
     }
   ],
   "readme": {
-    "hero_alt": "claude-development-skills. Opinions, packaged. Stable, v0.9.0. 81 skills in 8 plugins, one marketplace.",
+    "hero_alt": "ai-development-skills. Opinions, packaged. Stable, v0.10.0. 93 skills in 9 plugins, one marketplace.",
     "items": [
       "lead",
       "stats",
@@ -552,7 +556,7 @@
         "code": [
           [
             "text",
-            "/plugin marketplace add VelimirMueller/claude-development-skills\n/plugin install devcore@claude-development-skills\n/plugin marketplace update claude-development-skills"
+            "/plugin marketplace add VelimirMueller/ai-development-skills\n/plugin install devcore@ai-development-skills\n/plugin marketplace update ai-development-skills"
           ]
         ]
       },

@@ -83,6 +83,16 @@ Each principle states why it holds and when to break it. A rule without its exce
 **How to apply:** Match the surrounding code; let Biome/ruff/gofmt/rustfmt decide layout; write rules down once in `_shared/`.
 **When to deviate:** When the local convention is the bug. Fix it in a separate, mechanical PR.
 
+## Principle: Tracer bullet before the big build
+**Why:** A thin vertical slice that touches every layer once proves the seams connect before the feature fills them; the architecture's riskiest assumption is tested at its cheapest moment.
+**How to apply:** Build the smallest end-to-end path first and keep it; prototype only the unknown and throw the prototype away. See [slice-and-estimate](../../craft/slice-and-estimate/SKILL.md).
+**When to deviate:** A well-understood change with no architectural unknown — estimate it and build directly.
+
+## Principle: Fix the root cause, not the symptom
+**Why:** A patch at the symptom leaves the cause to resurface elsewhere; a fix that feels like a workaround points one level deeper.
+**How to apply:** Reproduce, bisect to the introducing change, test one hypothesis at a time, then fix the cause and add a regression test. See [debug-systematically](../../craft/debug-systematically/SKILL.md).
+**When to deviate:** An incident in production — stop the bleeding first, then debug the cause off the hot path.
+
 ## Using these in a skill
 
 A skill links here instead of restating. If a skill's rule departs from a principle, its `When to deviate` section says which principle and why.
