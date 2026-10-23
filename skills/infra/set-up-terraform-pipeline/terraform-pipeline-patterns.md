@@ -4,32 +4,45 @@ Reference for [set-up-terraform-pipeline](./SKILL.md). One rule per design decis
 pipeline. The promotion contract this implements is
 [branch-promotion](../../core/_shared/branch-promotion.md); the file-by-file content is
 [workflow-templates.md](./workflow-templates.md). No company, tenant, subscription or account identifiers appear in
-this file — use `<org>`, `<repo>`, `<app>` and the placeholders shown.
+this file — use `<org>`, `<repo>`, `<app>` and the placeholders shown. Rule IDs in brackets (`CI-COST-01`, `WF-*`,
+`GOV-*`) point to the fleet standard (`VelimirMueller/fleet-standard`), which these rules follow.
 
 ## Rule: resolve the environment in one `setup` job
-**Why:** Every later job needs the same answer to "which environment am I?". Derived in several places it drifts, and a
-PR event names the ref `<n>/merge`, which maps to no environment.
-**How to apply:** One `setup` job is the single source of truth. Push: `develop→dev`, `stage→stg`, `main→prd`, anything
-else fails. `pull_request`: plan `dev` (base develop) or `prd` (hotfix into main), mode plan. `workflow_dispatch`:
-allowed pairs only `refs/heads/develop@dev`, `refs/heads/stage@stg`, `refs/heads/main@prd` (a `case` statement);
-everything else fails. Downstream jobs read the env from the `setup` output — never from `github.ref_name`.
-**Anti-example:** `environment: ${{ github.ref_name }}` on a PR event.
+**Why:** Every later job needs the same answer to "which environment am I?". Derived in several places it drifts, and
+`github.ref_name` names a PR ref `<n>/merge`, which maps to no environment.
+**How to apply:** One `setup` job is the single source of truth (CI-ENV-01). `infra.yml` has one trigger,
+`workflow_dispatch`; the allowed pairs are `refs/heads/develop@dev`, `refs/heads/stage@stg`, `refs/heads/main@prd`
+(a `case` statement on `github.ref`); everything else fails (CI-ENV-02). `promote.yml` resolves the env from its
+`target` input. Downstream jobs read the env from the `setup` output — never from `github.ref_name`.
+**Anti-example:** `environment: ${{ github.ref_name }}`.
+
+## Rule: every plan and apply starts by hand
+**Why:** A plan with a cloud login is a deploy job: on `pull_request` it hands credentials to any branch, and an apply
+on `push` gives nobody a moment to read the plan. A copied trigger must not be able to deploy either (CI-COST-01,
+CI-COST-02).
+**How to apply:** `infra.yml`, `deploy.yml`, `promote.yml` and `tf-drift.yml` have `workflow_dispatch` only; the
+reusable `_tf-plan.yml` and `_tf-apply.yml` have `workflow_call` only. Every deploy job also checks
+`github.event_name == 'workflow_dispatch'` in its `if:` (in a reusable workflow that is the caller's event). PRs run
+the credential-free `_tf-check.yml` in the `lint` stage of `ci.yml` (CI-LINT-04). `dev` deploys by
+`gh workflow run deploy.yml --ref develop`, `stg` and `prd` by `promote.yml`.
+**Anti-example:** `on: push: branches: [develop]` with an apply job "because dev is only dev".
 
 ## Rule: ref@env binding is server-side, not just YAML
 **Why:** A dispatch runs the workflow file from the dispatched ref, so a workflow edit on an older branch is the
 workflow that runs. Only the environment's deployment branch policy survives that.
 **How to apply:** Give every environment a deployment branch policy: `dev` → `develop`, `stg` → `stage`, `prd` → `main`,
-`dev-plan` → `develop` plus PR refs. The `setup` case statement and the branch policy must agree; the policy is the
-enforcement, the case statement is the fast-fail.
+the `*-plan` environments have no branch policy (the drift job plans every env from one ref, and the plan identity is
+read-only). The `setup` case statement and the branch policy must agree; the policy is the enforcement, the case
+statement is the fast-fail.
 **Anti-example:** Relying on `if:` guards in the workflow to keep a `prd` apply off a `develop` dispatch.
 
-## Rule: concurrency is keyed on the resolved environment, with a PR clause
-**Why:** Two applies against one state interleave; two PR plan runs may cancel each other, which is fine. One key from a
-raw ref name would serialize unrelated runs and cancel a deploy mid-flight.
-**How to apply:** Workflow level:
-`group: infra-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || github.ref_name }}`
-with `cancel-in-progress: ${{ github.event_name == 'pull_request' }}`. Apply job:
-`group: tf-apply-<env>` with `cancel-in-progress: false` — `<env>` from the `setup` output.
+## Rule: concurrency is keyed on the environment, and a deploy is never cancelled
+**Why:** Two applies against one state interleave. A key from `github.ref_name` puts every PR (`<n>/merge`) in one
+group with real applies and evicts the queued apply (CI-COST-06).
+**How to apply:** Workflow level, starting with the workflow name (WF-NAME-07): `group: infra-${{ inputs.environment }}`
+with `cancel-in-progress: false`; `promote-${{ inputs.target }}` in `promote.yml`. Apply job:
+`group: tf-apply-${{ inputs.environment }}` with `cancel-in-progress: false`. Check workflows (`ci.yml`,
+`branch-policy.yml`, `branch-sync.yml`) use `<name>-${{ github.event.number || github.ref }}` and cancel the older run.
 **Anti-example:** `cancel-in-progress: true` on the apply job — cancelling between resource operations is how state
 gets wedged.
 
@@ -45,16 +58,17 @@ then runs `apply tfplan`.
 ## Rule: `-detailed-exitcode` is the contract, and it fails closed
 **Why:** Exit 0 means no changes, 2 means changes, 1 means error. Treating 1 as "no changes" would skip an apply on a
 planning error — the exact moment a resource breaks silently.
-**How to apply:** Capture the exit code with `set +e` / `set -e`; map 0 → `has_changes=0`, 2 → `has_changes=1` (and
-record `destroys`), 1 → fail the job. `tofu_wrapper: false` (or `terraform_wrapper: false`) so the wrapper does not
+**How to apply:** Capture the exit code with `set +e` / `set -e`; output it as `exitcode` (0 or 2, and record
+`destroys`); exit 1 fails the job. `tofu_wrapper: false` (or `terraform_wrapper: false`) so the wrapper does not
 swallow the exit code.
 **Anti-example:** `|| true` after the plan, or `echo $?` without checking it.
 
 ## Rule: the gate exists only on prd, and only when there are changes
 **Why:** A gate on dev or stg adds a human to a step already covered by `promote-stg`; a gate on "no changes" is a
-pause with nothing to review. Fail-closed: a missing or unknown `has_changes` value must not mean "apply anyway".
-**How to apply:** `has_changes == 0` → no gate, no apply, "no changes" in the summary. `dev`, `stg` → apply without a
-second human gate. `prd` and `has_changes != 0` → the `tf-apply-prd` gate. Plan exit 1 always fails.
+pause with nothing to review. Fail-closed: a missing or unknown `exitcode` value must not mean "apply anyway".
+**How to apply:** `exitcode == '0'` → no gate, no apply, "no changes" in the summary. `dev`, `stg` → apply without a
+second human gate (CI-GATE-07). `prd` and `exitcode != '0'` → the `tf-apply-prd` gate (CI-GATE-06); the apply needs
+`exitcode == '2'`. Plan exit 1 always fails. The gate job only echoes; it holds no credentials (CI-GATE-05).
 **Anti-example:** `if: always()` before a prd apply, or gating the dev apply.
 
 ## Rule: every destroy or replace is listed before the apply
@@ -66,20 +80,21 @@ of the plan, not buried in a 60k-character summary.
 **Anti-example:** Sending the raw plan text with no guard, so a destroy scrolls past the approver.
 
 ## Rule: previews run with the read-only plan identity and `-lock=false`
-**Why:** A lock-holding PR plan once orphaned the dev state lease for 10.5 hours. Only the push-triggered plan that
-feeds an apply needs the lock. The plan identity must be provably read-only, so a compromised plan step cannot write.
-**How to apply:** PR plans, dispatch plans and drift plans run as the plan identity with `-lock=false`. The
-plan job asserts its effective client id is the plan identity (`az account show --query user.name` /
-`aws sts get-caller-identity`); the apply job asserts its `ARM_CLIENT_ID` (or role ARN) equals the committed writer for
-that environment in a closed table (`.github/deploy-identities.yaml`).
-**Anti-example:** One privileged identity for both plan and apply, so a PR plan holds a write-capable token.
+**Why:** A lock-holding preview plan once orphaned the dev state lease for 10.5 hours. Only the plan that feeds an
+apply needs the lock. The plan identity must be provably read-only, so a compromised plan step cannot write.
+**How to apply:** `mode: plan` dispatches and drift plans bind `<env>-plan` and run with `-lock=false`; a
+`mode: apply` dispatch plans with the apply identity of `<env>` and holds the lock. The plan job asserts its
+effective client id is the plan identity (`az account show --query user.name` / `aws sts get-caller-identity`); the
+apply job asserts its `ARM_CLIENT_ID` (or role ARN) equals the committed writer for that environment in a closed
+table (`.github/deploy-identities.yaml`).
+**Anti-example:** One privileged identity for both plan and apply, so a preview plan holds a write-capable token.
 
 ## Rule: `ARM_*` and role variables are job-level, never workflow-level
 **Why:** Workflow-level `env:` is inherited by every job — including the credential-free `check` job and any job that
 later calls out. Identifiers should not travel to steps that do not need them.
 **How to apply:** Declare `ARM_USE_OIDC`, `ARM_CLIENT_ID`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID` (or the role ARN) on
 the plan and apply jobs only, as environment **variables** (they are not secrets).
-**Anti-example:** A workflow-level `env:` block carrying `ARM_CLIENT_ID` to the `check` job.
+**Anti-example:** A workflow-level `env:` block carrying `ARM_CLIENT_ID` to the credential-free check job.
 
 ## Rule: read the OIDC subject from the API, never invent it
 **Why:** The subject template differs by account (`repo:<org>/<repo>:…` vs the id-embedded form). A guessed subject
@@ -154,12 +169,14 @@ plan.txt` reports the exit code of `tee`, so a failed plan looks green.
 exit code via `${PIPESTATUS[0]}` where you pipe.
 **Anti-example:** A `| tee` step with no pipefail and no explicit exit-code capture.
 
-## Rule: one always-running `conclusion` job is the required check
+## Rule: one always-running aggregate job per workflow
 **Why:** A path-filtered workflow that does not run on a given PR reports no required check, and a branch protection rule
-with no status to wait on is not a rule. All per-env jobs run only sometimes, so none of them can be the required
-context.
-**How to apply:** A `conclusion` job that always runs, succeeds when the relevant checks passed (or were skipped), and is
-the single required status on `develop`. Use `dorny/paths-filter` inside it if you must narrow.
+with no status to wait on is not a rule. Single stages are skipped by path and tier, so none of them can be the
+required context.
+**How to apply:** `ci.yml` ends with `conclusion` (`if: always()`, needs every job, fails on `failure`/`cancelled` and
+on a skipped required stage while `changes` saw code); it is the required check on `develop` and `main`. `infra.yml`
+ends with `tf-conclusion` — a different name, so no second job reports `conclusion` (CI-CHECK-05). `ci.yml` has no
+`paths` filter; its `changes` job decides (CI-COST-10).
 **Anti-example:** Making the `plan` job the required check on `develop` and wondering why infra-only PRs never merge.
 
 ## Rule: downstream jobs require apply success, never `always()`
@@ -176,11 +193,12 @@ forward path is the only path.
 The audit greps for `plan -destroy` and `destroy` scripts and fails on them.
 **Anti-example:** A "rollback" workflow that terraform-destroys the environment and reapplies an old plan.
 
-## Rule: scheduled jobs never bind a gated environment
-**Why:** A schedule bound to an environment with required reviewers waits forever — there is no human to approve a cron
-job. The drift job needs read-only credentials and no gate.
-**How to apply:** `tf-drift.yml` runs under `<env>-plan` (no reviewers). It plans with `-lock=false`; exit 2 opens/updates
-one issue per env `drift: <env>`, exit 1 fails, exit 0 is clean.
+## Rule: drift is started by hand and never binds a gated environment
+**Why:** A schedule per repo costs minutes in every repo, and a scheduled job bound to an environment with required
+reviewers waits forever — there is no human to approve a cron job (CI-COST-12). The fleet-wide check runs once, in the
+control repo.
+**How to apply:** `tf-drift.yml` has `workflow_dispatch` only and runs under `<env>-plan` (no reviewers). It plans with
+`-lock=false`; exit 2 opens/updates one issue per env `drift: <env>`, exit 1 fails, exit 0 closes the issue.
 **Anti-example:** A weekly drift job bound to `prd` that queues behind the `tf-apply-prd` reviewers.
 
 ## Rule: alerts promote with the code
@@ -191,13 +209,15 @@ same pipeline and the same promotion. After apply, read the rules back and asser
 resolve.
 **Anti-example:** A separate `alerts.yml` that `apply`-s only when `github.ref == 'refs/heads/main'`.
 
-## Rule: the promotion push uses an App token, not `GITHUB_TOKEN`
-**Why:** A push made with `GITHUB_TOKEN` does not trigger other workflows, so the fast-forward to `stage`/`main` would
-never start the deploy pipeline.
-**How to apply:** `actions/create-github-app-token` mints an installation token; the `push` job re-verifies the
-fast-forward and runs `git push origin "$SHA:refs/heads/<branch>"` (no `--force`). The App id and private key live as
-secrets of `promote-stg`/`promote-prd`.
-**Anti-example:** Pushing `stage` with `github.token` and discovering the stg deploy never ran.
+## Rule: the promotion push uses an App token, and the same run deploys
+**Why:** Only the promotion App may bypass the `stage`/`main` rulesets, so the fast-forward needs its token. A deploy
+that starts from the push would run with no approval of its own and outside the promotion run (CI-PROMOTE-01,
+CI-PROMOTE-05).
+**How to apply:** `actions/create-github-app-token` mints an installation token in `promote-stg`/`promote-prd`
+(bound to the gate environment that holds the key); the job re-verifies the fast-forward, runs
+`git push origin "$SHA:refs/heads/<branch>"` (no `--force`), then starts `infra.yml` on that branch with
+`gh workflow run` (a `GITHUB_TOKEN` dispatch does start a run) and waits for it (`scripts/deploy-env.sh`).
+**Anti-example:** An `on: push: branches: [stage]` deploy that runs whenever someone moves `stage`.
 
 ## When to deviate
 
@@ -208,5 +228,6 @@ secrets of `promote-stg`/`promote-prd`.
 - **Terraform Cloud / HCP remote runs:** the plan/apply split moves into TFC/HCP; GitHub keeps the promotion, the
   approval gate and the drift job, but the saved-plan artifact and `-detailed-exitcode` handling do not apply — say so,
   and keep `prevent_destroy`, the destroy/replace guard and the secret-data-source rule.
-- **Private repo on a plan without environment reviewers:** the `tf-apply-prd` gate degrades to a pause in front of the
-  plan summary. That is not a second pair of eyes — say so in the README, do not pretend it is.
+- **Private repo on GitHub Free** (no environments, no reviewers): use the `private-free` variant in
+  [workflow-templates.md](./workflow-templates.md) — the dispatch is the approval and `tf-apply-prd.yml` applies a
+  saved prd plan by run id (GOV-PRV-02). That is not a second pair of eyes — say so in the README.

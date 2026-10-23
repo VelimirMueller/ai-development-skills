@@ -1,80 +1,121 @@
 # OpenTofu Patterns
 
-Reference for `set-up-opentofu`. Layout, provider sources, remote state, encryption, secrets, module rules, tests. Verified against OpenTofu 1.13.1 on 2026-10-09; the CI side is [opentofu-ci-patterns.md](./opentofu-ci-patterns.md).
+Reference for `set-up-opentofu`. Layout, provider sources, remote state, encryption, secrets, module rules, tests. Verified against OpenTofu 1.13.1 on 2026-10-09; layout aligned with the fleet standard (`TF-*`) on 2026-10-23; the CI side is [opentofu-ci-patterns.md](./opentofu-ci-patterns.md).
 
-## Rule: one root module per environment, modules shared
-**Why:** Each root has its own state file, its own tfvars and its own credentials, so a dev plan cannot reach prd resources at all. Workspaces share one state and one variable set; selecting the wrong workspace applies dev values to prd. Blast radius is the argument, not convenience.
+## Rule: one root module, one state and one credential set per environment
+**Why:** Each environment has its own state key, its own tfvars and its own credentials (secrets of its GitHub environment), so a dev plan cannot reach prd resources at all. Workspaces share one variable set and one credential; selecting the wrong workspace applies dev values to prd. Blast radius is the argument. One root instead of one copy per environment keeps the three environments on the same code, so a prd-only edit cannot hide in `envs/prd/main.tf` (fleet standard TF-LAYOUT-01, TF-LAYOUT-02, TF-FILE-01).
 **How to apply:**
 ```
-infra/
+terraform/
+  .opentofu-version  .terraform.lock.hcl
+  versions.tf  backend.tf  providers.tf  variables.tf  locals.tf  main.tf  outputs.tf
+  envs/{dev,stg,prd}.tfvars  envs/{dev,stg,prd}.backend.hcl
   modules/<name>/{main,variables,outputs,versions}.tf  + tests/*.tftest.hcl
-  envs/{dev,stg,prd}/{main,variables,versions,backend}.tf  terraform.tfvars  .terraform.lock.hcl
+.tflint.hcl
 ```
-The root is thin: locals for names, the provider block, one module call, outputs. `envs/dev/main.tf`:
+The root is thin: the provider block, one module call, outputs; every value that differs per environment is a variable. `main.tf`:
 
 ```hcl
-locals {
-  app         = "shop"
-  environment = "dev"
-  name        = "${local.app}-${local.environment}"
-}
-
-provider "hcloud" {} # token from HCLOUD_TOKEN
-
 module "host" {
-  source = "../../modules/hetzner-host"
+  source = "./modules/hetzner-host"
 
   name                  = local.name
-  environment           = local.environment
+  environment           = var.environment
   server_type           = var.server_type
-  volume_size_gb        = 20
-  protect               = false
+  volume_size_gb        = var.volume_size_gb
+  protect               = var.is_protected
   admin_ssh_public_key  = var.admin_ssh_public_key
   deploy_ssh_public_key = var.deploy_ssh_public_key
   image_repo            = "ghcr.io/acme/shop"
-  run_script            = file("${path.module}/../../../deploy/host/run.sh")
-}
-
-output "ipv4" {
-  value = module.host.ipv4
+  run_script            = file("${path.root}/../deploy/host/run.sh")
 }
 ```
 
-`envs/dev/variables.tf` (what differs per environment):
+`locals.tf` derives the name once:
 
 ```hcl
-variable "server_type" {
-  type = string
+locals {
+  name = "${var.app}-${var.environment}"
+}
+```
+
+`variables.tf` (required first, then optional; each group alphabetical):
+
+```hcl
+variable "admin_ssh_public_key" {
+  type        = string
+  description = "Public key of the admin user."
 }
 
-variable "admin_ssh_public_key" {
-  type = string
+variable "app" {
+  type        = string
+  description = "Short app name; the first part of every resource name."
 }
 
 variable "deploy_ssh_public_key" {
-  type = string
+  type        = string
+  description = "Public key of the deploy user."
+}
+
+variable "environment" {
+  type        = string
+  description = "Target environment."
+
+  validation {
+    condition     = contains(["dev", "stg", "prd"], var.environment)
+    error_message = "environment must be dev, stg or prd."
+  }
+}
+
+variable "server_type" {
+  type        = string
+  description = "Hetzner server type, sized per environment."
+}
+
+variable "is_protected" {
+  type        = bool
+  description = "Turn on delete and rebuild protection (prd)."
+  default     = false
+}
+
+variable "volume_size_gb" {
+  type        = number
+  description = "Size of the data volume."
+  default     = 20
 }
 ```
 
-`envs/dev/terraform.tfvars` — sizing and public keys, no secrets:
+`envs/dev.tfvars` — sizing and public keys, no secrets:
 
 ```hcl
+app                   = "shop"
+environment           = "dev"
 server_type           = "cx23"
 admin_ssh_public_key  = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdmin admin@example.com"
 deploy_ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDeploy deploy-dev"
 ```
 
-Sizing lives in the root, not the module: dev takes `volume_size_gb = 20` and `server_type = "cx23"`; the prd root passes a larger volume, a bigger `server_type` (look it up with `hcloud server-type list`; prices moved twice in 2026) and `protect = true`. The IONOS module sizes its database by environment (`count = var.environment == "prd" ? 2 : 1`). Names are derived once ([environments.md](../_shared/environments.md)); `run_script` pulls the host-side deploy script from the same tree ([deploy-script.md](../_shared/deploy-script.md)). `versions.tf` and `backend.tf` complete the root — below.
+`envs/prd.tfvars` passes a larger `volume_size_gb`, a bigger `server_type` (look it up with `hcloud server-type list`; prices moved twice in 2026) and `is_protected = true`. The IONOS module sizes its database by environment (`count = var.environment == "prd" ? 2 : 1`). Names are derived once ([environments.md](../_shared/environments.md)); `run_script` pulls the host-side deploy script from the same tree ([deploy-script.md](../_shared/deploy-script.md)). `providers.tf` holds `provider "hcloud" {}` (token from `HCLOUD_TOKEN`). `outputs.tf`:
 
-**Anti-example:** one root with `terraform.workspace == "prd" ? … : …` and a shared tfvars file.
+```hcl
+output "ipv4" {
+  description = "Public IPv4 address of the host."
+  value       = module.host.ipv4
+}
+```
 
-## Rule: every root declares `required_providers` with the full source
+`versions.tf` and `backend.tf` complete the root — below.
+
+**Anti-example:** one root with `terraform.workspace == "prd" ? … : …`, or a copy of the root per environment that drifts.
+
+## Rule: the root declares `required_providers` with the full source
 **Why:** Verified pitfall: a root with `provider "hcloud" {}` but no root `required_providers` makes OpenTofu resolve the bare name to `hashicorp/hcloud`. Init fails — or resolves a different provider with the same name. The OpenTofu registry does not share Terraform's default namespace.
-**How to apply:** `envs/dev/versions.tf`:
+**How to apply:** `versions.tf`, with one exact tool version that `terraform/.opentofu-version` repeats (`1.13.1`):
 
 ```hcl
 terraform {
-  required_version = ">= 1.11"
+  required_version = "= 1.13.1"
+
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
@@ -84,11 +125,12 @@ terraform {
 }
 ```
 
-The IONOS root declares its provider the same way (`envs/dev-ionos/versions.tf`):
+An IONOS root declares its provider the same way:
 
 ```hcl
 terraform {
-  required_version = ">= 1.11"
+  required_version = "= 1.13.1"
+
   required_providers {
     ionoscloud = {
       source  = "ionos-cloud/ionoscloud"
@@ -98,36 +140,38 @@ terraform {
 }
 ```
 
-Modules repeat the block (`modules/hetzner-host/versions.tf` holds the same hcloud stanza), so a module pulled into a new root cannot fail on a missing source.
+Modules repeat the `required_providers` stanza without `required_version` (`modules/hetzner-host/versions.tf`), so a module pulled into a new root cannot fail on a missing source.
 **Anti-example:** `provider "ionoscloud" {}` in a root whose only `required_providers` lives in a module.
 
 ## Rule: remote state in object storage, with a lock the store actually supports
 **Why:** State in the repo leaks resource values and merges badly; state on a laptop blocks CI. The lock keeps two applies from interleaving. On S3-compatible stores the lock is a conditional write (`If-None-Match`) to `<key>.tflock`, so it works only where the store supports conditional writes.
-**How to apply:** `envs/dev/backend.tf` (Hetzner Object Storage, nbg1):
+**How to apply:** `backend.tf` names the backend; `envs/dev.backend.hcl` holds the values (Hetzner Object Storage, nbg1):
 
 ```hcl
 terraform {
-  backend "s3" {
-    bucket = "shop-tfstate"
-    key    = "dev/terraform.tfstate"
-    region = "nbg1"
-
-    endpoints      = { s3 = "https://nbg1.your-objectstorage.com" }
-    use_path_style = true
-    use_lockfile   = true
-
-    skip_credentials_validation = true
-    skip_requesting_account_id  = true
-    skip_metadata_api_check     = true
-    skip_region_validation      = true
-    skip_s3_checksum            = true
-  }
+  backend "s3" {}
 }
+```
+
+```hcl
+bucket = "shop-tfstate"
+key    = "dev/terraform.tfstate"
+region = "nbg1"
+
+endpoints      = { s3 = "https://nbg1.your-objectstorage.com" }
+use_path_style = true
+use_lockfile   = true
+
+skip_credentials_validation = true
+skip_requesting_account_id  = true
+skip_metadata_api_check     = true
+skip_region_validation      = true
+skip_s3_checksum            = true
 ```
 
 The skip flags exist because the store is not AWS: `skip_credentials_validation` (no STS to validate against), `skip_requesting_account_id` (no account API), `skip_metadata_api_check` (no EC2 metadata on a runner; the probe hangs), `skip_region_validation` (`nbg1` is not an AWS region), `skip_s3_checksum` (do not send the SDK's new checksum headers). `use_path_style = true` puts the bucket in the path — S3-compatible stores do not route virtual-hosted buckets. All flags verified against a local S3 clone, including a real lock conflict (`Error acquiring the state lock`).
 
-Create the bucket once by hand — Console or S3 API; Hetzner has no provider resource for buckets — with versioning on. It is the one resource that cannot manage itself. One state key per environment (`dev/terraform.tfstate`).
+Create the bucket once by hand — Console or S3 API; Hetzner has no provider resource for buckets — with versioning on. It is the one resource that cannot manage itself. One state key per environment (`dev/terraform.tfstate` in `envs/dev.backend.hcl`); CI runs `tofu init -backend-config=envs/<env>.backend.hcl`.
 
 Before trusting the lock on a real store, test conditional writes:
 
@@ -190,11 +234,11 @@ Rotating a passphrase has the same shape: new key provider as `method`, old as `
 tofu providers lock -platform=linux_amd64 -platform=linux_arm64 -platform=darwin_arm64
 ```
 
-Three platforms: the CI runner (linux_amd64), arm64 hosts (Hetzner `cax`), developer Macs. Commit `.terraform.lock.hcl` per root; CI runs `tofu init -lockfile=readonly` and fails when the lock does not cover the config. Upgrades go through reviewed pull requests; whether Renovate or Dependabot (`terraform` ecosystem) resolves registry.opentofu.org addresses is unverified — check before relying on either.
+Three platforms: the CI runner (linux_amd64), arm64 hosts (Hetzner `cax`), developer Macs. Commit `terraform/.terraform.lock.hcl`; CI runs `tofu init -lockfile=readonly` and fails when the lock does not cover the config. Upgrades go through reviewed pull requests; whether Renovate or Dependabot (`terraform` ecosystem) resolves registry.opentofu.org addresses is unverified — check before relying on either.
 **Anti-example:** `version = ">= 1.0"` and no lock file.
 
 ## Rule: passwords are ephemeral and write-only
-**Why:** A `sensitive` variable still lands in state in plaintext. An `ephemeral = true` variable never persists; a write-only attribute (OpenTofu >= 1.11, which `required_version = ">= 1.11"` already demands) reaches the API without being stored.
+**Why:** A `sensitive` variable still lands in state in plaintext. An `ephemeral = true` variable never persists; a write-only attribute (OpenTofu >= 1.11; the pinned 1.13.1 has it) reaches the API without being stored.
 **How to apply:** `modules/ionos-host/variables.tf`:
 
 ```hcl
@@ -218,8 +262,8 @@ and the DBaaS block that consumes it (`modules/ionos-host/main.tf`):
   }
 ```
 
-Supply the value as `TF_VAR_db_password` from the secret store; `db_password_version` is bumped to rotate. State still holds other values — addresses, ids — so it stays encrypted and the bucket stays private. tfvars hold no secrets (see the dev file above: a server type and two public keys). Provider tokens (`HCLOUD_TOKEN`, `IONOS_TOKEN`) arrive as env vars only; the provider blocks in the roots are empty.
-**Anti-example:** a `db_password` value in `prd/terraform.tfvars`.
+Supply the value as `TF_VAR_db_password` from the secret store; `db_password_version` is bumped to rotate. State still holds other values — addresses, ids — so it stays encrypted and the bucket stays private. tfvars hold no secrets (see `envs/dev.tfvars` above: a server type and two public keys). Provider tokens (`HCLOUD_TOKEN`, `IONOS_TOKEN`) arrive as env vars only; the provider blocks in the roots are empty.
+**Anti-example:** a `db_password` value in `envs/prd.tfvars`.
 
 ## Rule: modules validate inputs, label everything, and do not churn hosts
 **Why:** A module is a contract; validation turns a typo (`"qa"`) into a plan-time error instead of a wrongly-named stack of resources. Labels make every console listing answer "which environment owns this". cloud-init runs once per host: treating it as config that must converge forces a server replacement on every template edit.
@@ -235,7 +279,7 @@ variable "environment" {
 }
 ```
 
-Labels on every resource (`modules/hetzner-host/main.tf`):
+Labels on every resource (`modules/hetzner-host/main.tf`); the fleet standard asks for `project`, `environment`, `managed_by` and `repo` (TF-TAG-01):
 
 ```hcl
 locals {
@@ -243,6 +287,7 @@ locals {
     project     = var.name
     environment = var.environment
     managed_by  = "opentofu"
+    repo        = "acme-shop" # owner-repo; Hetzner label values allow no slash
   }
 }
 ```
@@ -330,7 +375,7 @@ run "rejects_unknown_environment" {
 }
 ```
 
-Hetzner ids are numeric and the default mock id is a random string, so every mock resource pins a numeric `id` default. `expect_failures` asserts the validation rule fires. The CI check job runs `tofu test` for every module with a `tests/` directory ([opentofu-ci-patterns.md](./opentofu-ci-patterns.md)).
+Hetzner ids are numeric and the default mock id is a random string, so every mock resource pins a numeric `id` default. `expect_failures` asserts the validation rule fires. The `_tf-check.yml` job runs `tofu test` in the root and in every module with a `tests/` directory ([opentofu-ci-patterns.md](./opentofu-ci-patterns.md)).
 
 ## Rule: adopt existing resources with `import`, move them with `moved`
 **Why:** Hand-made resources can join state without recreation, and renames do not destroy-and-recreate when the mapping is declared. Both are plain blocks, reviewed like any change.
@@ -355,7 +400,7 @@ moved {
 **How to apply:** the CI check job runs, from the pinned image (never the compromised action tag — see [containerize-service](../containerize-service/SKILL.md)):
 
 ```bash
-docker run --rm -v "$PWD/infra:/work:ro" \
+docker run --rm -v "$PWD/terraform:/work:ro" \
   ghcr.io/aquasecurity/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa \
   config --exit-code 1 --severity HIGH,CRITICAL --no-progress /work
 ```
@@ -369,6 +414,6 @@ It reported 0 misconfigurations on these modules.
 
 ## When to deviate
 - **Existing Terraform repo**: `tofu init` reads it as is; add the OpenTofu lock file and encryption in place instead of restructuring (SKILL.md step 2).
-- **One environment**: a single `envs/dev` root is fine; add roots when stg and prd exist.
+- **One environment**: `envs/dev.tfvars` and `envs/dev.backend.hcl` only; add the stg and prd pair when those environments exist.
 - **Store that cannot lock**: the `pg` backend or a different store beats `use_lockfile = false` on a shared state.
 - **A platform group owns the state**: their backend and CI win; keep the module, secret and test rules.
