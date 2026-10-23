@@ -110,23 +110,27 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/unit.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-unit.yml@v1
+    with:
+      stack: node # node|bun|go|python|rust|generic; generic also needs command
 
   e2e:
     needs: [changes, unit]
     if: ${{ !failure() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.e2e }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/e2e.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v1
+    with:
+      stack: node # node|bun|go|python|rust|generic; generic also needs command
 
   build:
     needs: [changes, e2e]
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/build.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-build.yml@v1 # verify only; publishing is _build-publish.yml
     with:
-      publish: false
+      stack: node # node|bun|go|python|rust|generic; generic also needs command
 
   conclusion:
     needs: [changes, lint, unit, e2e, build]
@@ -1234,8 +1238,9 @@ jobs:
     if: needs.setup.outputs.env == 'stg'
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/e2e.yml@v1
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v1
     with:
+      stack: node # node|bun|go|python|rust|generic; generic also needs command
       ref: ${{ needs.preflight.outputs.sha }}
 
   promote-stg:
