@@ -12,7 +12,7 @@ git merge-base --is-ancestor origin/stage origin/develop || exit 1   # ff possib
 git merge-base --is-ancestor origin/main origin/stage || exit 1      # invariant holds
 git log --oneline origin/stage..$SHA
 git push origin "$SHA:refs/heads/stage"                              # no --force
-gh workflow run infra.yml --ref stage -f environment=stg -f mode=apply  # a push deploys nothing
+gh workflow run infra.yml --ref stage -f environment=stg -f mode=apply  # only without promote.yml
 ```
 
 Wait for stg green, then:

@@ -8,11 +8,10 @@ Copy-ready files for [set-up-terraform-pipeline](./SKILL.md). Rules and reasons:
 
 Status: on 2026-10-23 a repo rendered from these files (tier `deploys`, visibility `public`) passed `fleet check`
 with no exception record. Pins were resolved from the GitHub API on 2026-10-22 (`dorny/paths-filter` on
-2026-10-23). None of the workflows has run on GitHub yet; treat the first run in a real repo as the test.
+2026-10-23). None of the workflows has run on GitHub yet; treat the first run in a real repo as the test. `VelimirMueller/fleet-workflows` has no `v1` tag yet (2026-10-23): until it does, the `unit`, `e2e` and `build` calls do not resolve.
 
 Fill in before the first run: `cloud: azure|aws|none` and `tool: terraform|tofu` in `infra.yml`, `tf-drift.yml` and
-`_ci-lint.yml`; `terraform/.terraform-version` (or `.opentofu-version`) with one exact version; `<fleet-workflows>` and
-`<tag>` in `ci.yml` and `promote.yml`; per-environment variables (`ARM_CLIENT_ID`, `ARM_TENANT_ID`,
+`_ci-lint.yml`; `terraform/.terraform-version` (or `.opentofu-version`) with one exact version; per-environment variables (`ARM_CLIENT_ID`, `ARM_TENANT_ID`,
 `ARM_SUBSCRIPTION_ID` or `AWS_ROLE_ARN`, `AWS_REGION`, `VERSION_URL`); `PROMOTE_APP_ID` (variable) and
 `PROMOTE_APP_PRIVATE_KEY` (secret) on `promote-stg` and `promote-prd`.
 
@@ -39,8 +38,7 @@ The one PR check workflow (stages 1 to 4). `changes` decides what runs, so the r
 reports (CI-COST-10); `lint` runs the workflow lint when `.github/workflows/**` changed (CI-LINT-03) and the Terraform
 static checks when `*.tf`, `*.tfvars` or the lock file changed (CI-LINT-04). `unit`, `e2e` and `build` are the app
 stages from the fleet reusable workflows; an app repo adds its language lint to `_ci-lint.yml`. `e2e` runs only by
-`workflow_dispatch` with `e2e: true` (CI-E2E-01). Replace `<fleet-workflows>` and `<tag>` with the fleet workflow repo
-and its release tag.
+`workflow_dispatch` with `e2e: true` (CI-E2E-01). The callers pin `VelimirMueller/fleet-workflows` at `@v1`.
 
 ```yaml
 name: ci
@@ -112,21 +110,21 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/<fleet-workflows>/.github/workflows/unit.yml@<tag>
+    uses: VelimirMueller/fleet-workflows/.github/workflows/unit.yml@v1
 
   e2e:
     needs: [changes, unit]
     if: ${{ !failure() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.e2e }}
     permissions:
       contents: read
-    uses: VelimirMueller/<fleet-workflows>/.github/workflows/e2e.yml@<tag>
+    uses: VelimirMueller/fleet-workflows/.github/workflows/e2e.yml@v1
 
   build:
     needs: [changes, e2e]
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/<fleet-workflows>/.github/workflows/build.yml@<tag>
+    uses: VelimirMueller/fleet-workflows/.github/workflows/build.yml@v1
     with:
       publish: false
 
@@ -139,12 +137,14 @@ jobs:
     steps:
       - name: Fail when a job failed or a required stage was skipped
         env:
+          CHANGES: ${{ needs.changes.result }}
           CODE: ${{ needs.changes.outputs.code }}
           RESULTS: ${{ join(needs.*.result, ' ') }}
           LINT: ${{ needs.lint.result }}
           UNIT: ${{ needs.unit.result }}
           BUILD: ${{ needs.build.result }}
         run: |
+          [ "$CHANGES" = "success" ] || { echo "::error::changes ended as $CHANGES"; exit 1; }
           for r in $RESULTS; do
             case "$r" in success|skipped) ;; *) echo "::error::a job ended as $r"; exit 1 ;; esac
           done
@@ -1014,6 +1014,7 @@ jobs:
             echo "::error::$SHA and its PR head $head differ in content; the checks did not cover this tree"
             exit 1
           fi
+          # the aggregate job of ci.yml is named conclusion; it is the one required check
           ok=$(gh api "repos/$REPO/commits/$head/check-runs?check_name=conclusion" \
             --jq '[.check_runs[] | select(.conclusion == "success")] | length')
           if [ "$ok" = "0" ]; then
@@ -1214,7 +1215,7 @@ jobs:
     if: needs.setup.outputs.env == 'stg'
     permissions:
       contents: read
-    uses: VelimirMueller/<fleet-workflows>/.github/workflows/e2e.yml@<tag>
+    uses: VelimirMueller/fleet-workflows/.github/workflows/e2e.yml@v1
     with:
       ref: ${{ needs.preflight.outputs.sha }}
 
@@ -2020,6 +2021,8 @@ usage() {
 REPO="$1"
 REVIEWER="$2"
 APP_ID="$3"
+# FLEET_CHECK=1 adds fleet-check to the required checks on develop; set it only once fleet-check.yml reports.
+FLEET_CHECK="${FLEET_CHECK:-0}"
 
 command -v gh >/dev/null 2>&1 || {
   echo "::error:: gh is required" >&2
@@ -2125,7 +2128,7 @@ ruleset_json() {
   case "${branch}" in
     develop)
       pr='"required_approving_review_count": 0, "dismiss_stale_reviews_on_push": true, "required_review_thread_resolution": true, "allowed_merge_methods": ["merge", "squash"]'
-      checks="$(checks_json conclusion fleet-check)"   # drop fleet-check until the repo has fleet-check.yml
+      if [[ "${FLEET_CHECK}" == 1 ]]; then checks="$(checks_json conclusion fleet-check)"; else checks="$(checks_json conclusion)"; fi
       strict=true
       bypass='[]'
       ;;
@@ -2134,6 +2137,10 @@ ruleset_json() {
       if [[ "${branch}" == main ]]; then checks="$(checks_json conclusion branch-policy)"; else checks="$(checks_json branch-policy)"; fi
       strict=false
       bypass="[{\"actor_id\": ${APP_ID}, \"actor_type\": \"Integration\", \"bypass_mode\": \"always\"}]"
+      ;;
+    *)
+      echo "::error:: no ruleset for branch '${branch}'" >&2
+      return 1
       ;;
   esac
   cat <<JSON

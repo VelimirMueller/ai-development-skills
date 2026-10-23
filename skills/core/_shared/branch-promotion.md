@@ -9,7 +9,8 @@ rules `CI-*`, `CI-COST-*`, `GOV-*`) builds on this contract and makes it checkab
 
 Every deploy starts by hand (fleet standard CI-COST-01): `dev` by `deploy.yml` dispatched on `develop`, `stg` and
 `prd` by `promote.yml`, which fast-forwards the branch and deploys in the same run. A merge or a push deploys
-nothing.
+nothing. When `promote.yml` exists, every stg and prd deploy goes through it, so the `promote-stg`/`promote-prd`
+approvals apply; a direct `infra.yml` dispatch is only for repos that do not have `promote.yml` yet.
 
 | Branch | Environment | GitHub env (deploy) | Gets changes by |
 |---|---|---|---|
@@ -180,9 +181,9 @@ Server-side, so a workflow edit cannot remove it:
   Allow squash **and** merge commits:
   feature PRs squash, the back-merge PR `sync/main-into-develop` must use a merge commit (a squash keeps
   `main` ahead forever).
-- **GitHub environments:** `promote-stg`, `promote-prd`, `tf-apply-prd` (required reviewers,
-  `prevent_self_review: false` while the repo has one maintainer — `true` would deadlock every gate — and no
-  admin bypass), `dev`/`stg`/`prd` (deploy credentials, NO reviewers, deployment branch policy =
+- **GitHub environments:** `promote-stg`, `promote-prd`, `tf-apply-prd` (required reviewers, no admin bypass,
+  `prevent_self_review: false` while the repo has one maintainer — fleet standard CI-GATE-03; `true` would
+  deadlock every gate — and `true` once a second maintainer joins), `dev`/`stg`/`prd` (deploy credentials, NO reviewers, deployment branch policy =
   `develop`/`stage`/`main` respectively), `dev-plan`/`stg-plan`/`prd-plan` (read-only plan credentials, no
   reviewers, no branch policy — the drift job plans every env from one ref, and the identity cannot change
   anything; used by plan-only dispatches and the drift job).
@@ -199,8 +200,8 @@ Server-side, so a workflow edit cannot remove it:
   `main` gets changes by fast-forward only, and promotion is `main := develop@<sha>`.
 - **A trunk-only repo with tag deploys is NOT this contract.** One branch, deploys by tag. If it needs
   environment promotion, migrate it to this contract; do not bolt promotion onto tags.
-- **A solo repo:** the reviewer is the author. Keep the gate as a pause for the plan output and say so — it
-  is not a second pair of eyes.
+- **A solo repo:** the reviewer is the author (`prevent_self_review: false`, above). Keep the gate as a pause
+  for the plan output and say so — it is not a second pair of eyes.
 - **A private repo on GitHub Free:** no rulesets, no environments, no reviewers. The dispatch is the approval
   (fleet standard GOV-PRV-02); the `private-free` variant in
   [set-up-terraform-pipeline](../../infra/set-up-terraform-pipeline/workflow-templates.md) shows the changes.

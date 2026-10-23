@@ -59,8 +59,8 @@ git push origin "$SHA:refs/heads/stage"       # fast-forward only; never --force
 ```
 
 On a manual run, confirm the SHA deployed green on `dev` first (the deployment lookup in step 1). The
-workflow's preflight does this for you. With the fleet pipeline a push deploys nothing; start the deploy by
-hand: `gh workflow run infra.yml --ref stage -f environment=stg -f mode=apply`.
+workflow's preflight does this for you. With the fleet pipeline a push deploys nothing; in a repo without `promote.yml`, start
+the deploy by hand: `gh workflow run infra.yml --ref stage -f environment=stg -f mode=apply`.
 
 ## 5. Wait
 
