@@ -96,7 +96,7 @@ jobs:
       # No build step: archive the tracked tree as Claude Code installs it, and check the manifest is in it.
       command: >-
         git archive --format=tar.gz -o "$RUNNER_TEMP/marketplace.tar.gz" HEAD &&
-        tar -tzf "$RUNNER_TEMP/marketplace.tar.gz" | grep -qx '.claude-plugin/marketplace.json'
+        tar -tzf "$RUNNER_TEMP/marketplace.tar.gz" .claude-plugin/marketplace.json
       pack: false
 
   conclusion:
