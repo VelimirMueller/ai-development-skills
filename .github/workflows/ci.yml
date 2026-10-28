@@ -37,7 +37,7 @@ jobs:
       - name: Detect code changes
         id: filter
         if: github.event_name == 'pull_request'
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           predicate-quantifier: every
           # The skills are Markdown, so Markdown changes run CI here.
