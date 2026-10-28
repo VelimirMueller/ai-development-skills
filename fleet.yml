@@ -9,3 +9,9 @@ exceptions:
     value: [LICENSE, .github/ISSUE_TEMPLATE/**]
     reason: The product is Markdown (SKILL.md and its reference docs), so a Markdown change must run the validator; only LICENSE and issue templates skip CI.
     expires: 2027-04-30
+  # expires is required only on CI-COST-* records (validateExceptions in fleet-standard);
+  # a CI-UNIT waiver holds until coverage lands.
+  - rule: CI-UNIT-03
+    value:
+      lines: 0
+    reason: The unit stage is the marketplace validator script over Markdown and shell; nothing runs that a coverage tool could measure, so the floor is 0.
