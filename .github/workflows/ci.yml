@@ -1,0 +1,124 @@
+# Fleet standard ci.yml (library tier, public). Stages call VelimirMueller/fleet-workflows at the
+# release tag v0.0.2: fleet policy pins own repos by tag (zizmor ref-pin) and third-party actions by SHA.
+name: ci
+
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      e2e:
+        description: Run the e2e stage
+        type: boolean
+        default: false
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ci-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ github.event_name != 'pull_request' || steps.filter.outputs.code == 'true' }}
+    steps:
+      - name: Detect code changes
+        id: filter
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          predicate-quantifier: every
+          # The skills are Markdown, so Markdown changes run CI here.
+          filters: |
+            code:
+              - '!LICENSE'
+              - '!.github/ISSUE_TEMPLATE/**'
+
+  lint:
+    needs: changes
+    if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
+    permissions:
+      contents: read
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-lint.yml@v0.0.2
+    with:
+      stack: generic
+      # bash -n and shellcheck on every tracked shell script (ubuntu-latest ships shellcheck).
+      command: |
+        mapfile -t scripts < <(git ls-files '*.sh')
+        [ "${#scripts[@]}" -eq 0 ] && exit 0
+        for f in "${scripts[@]}"; do bash -n "$f"; done
+        shellcheck --severity=warning "${scripts[@]}"
+
+  unit:
+    needs: [changes, lint]
+    if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
+    permissions:
+      contents: read
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-unit.yml@v0.0.2
+    with:
+      stack: generic
+      # The marketplace validator: plugin entries, version sync, SKILL.md frontmatter, links.
+      command: bash scripts/validate.sh
+      # Markdown skills and one shell script: no code to measure, so the floor check is off.
+      coverage-floor: 0
+
+  e2e:
+    needs: [changes, unit]
+    if: ${{ !failure() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.e2e }}
+    permissions:
+      contents: read
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v0.0.2
+    with:
+      stack: generic
+      # No e2e suite: the e2e input of a dispatch has nothing to run here.
+      command: echo "::error::this repo has no e2e suite" && exit 1
+
+  build:
+    needs: [changes, e2e]
+    if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
+    permissions:
+      contents: read
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-build.yml@v0.0.2
+    with:
+      stack: generic
+      # No build step: archive the tracked tree as Claude Code installs it, and check the manifest is in it.
+      command: >-
+        git archive --format=tar.gz -o "$RUNNER_TEMP/marketplace.tar.gz" HEAD &&
+        tar -tzf "$RUNNER_TEMP/marketplace.tar.gz" .claude-plugin/marketplace.json
+      pack: false
+
+  conclusion:
+    needs: [changes, lint, unit, e2e, build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Fail when a job failed or a required stage was skipped
+        env:
+          CODE: ${{ needs.changes.outputs.code }}
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+          LINT: ${{ needs.lint.result }}
+          UNIT: ${{ needs.unit.result }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) echo "::error::a job ended as $r"; exit 1 ;; esac
+          done
+          if [ "$CODE" = "true" ]; then
+            for r in "$LINT" "$UNIT" "$BUILD"; do
+              [ "$r" = "success" ] || { echo "::error::a required stage did not run"; exit 1; }
+            done
+          fi

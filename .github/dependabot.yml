@@ -1,6 +1,14 @@
+# Weekly, grouped, one PR per ecosystem (CI-COST-04).
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]

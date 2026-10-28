@@ -1,0 +1,11 @@
+# fleet.yml: tier and visibility of this repo (STANDARD.md). Exceptions: docs/rollout.md.
+tier: library
+visibility: public
+exceptions:
+  - rule: GOV-RS-02
+    value: no develop branch
+    reason: The repo is trunk-only on main until the control repo creates develop (fleet-standard#7).
+  - rule: CI-COST-10
+    value: [LICENSE, .github/ISSUE_TEMPLATE/**]
+    reason: The product is Markdown (SKILL.md and its reference docs), so a Markdown change must run the validator; only LICENSE and issue templates skip CI.
+    expires: 2027-04-30
