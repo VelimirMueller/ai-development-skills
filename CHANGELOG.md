@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html): a new skill is a minor
 bump, a fix to an existing one is a patch.
 
+## [0.11.0] — 2026-10-28
+
+### Added
+- **`swiftskills` — a new plugin with 61 vendored Swift skills** from the community list [twostraws/swift-agent-skills](https://github.com/twostraws/swift-agent-skills): SwiftUI (Pro, UI patterns, design principles, view refactor, performance audit), SwiftData (Pro, expert, testing), Swift Concurrency (Pro and two experts), Swift Testing (Pro and two more), Swift API design, FormatStyle, accessibility (iOS, Swift, and AppKit/SwiftUI/UIKit auditors), App Intents, background execution, Core Data, focus, observability, security, codebase audit, architecture, widgets, interface writing, the iOS Simulator, App Store review, changelog and ASO, and the 26 App Store Connect CLI (`asc`) skills. Every skill is MIT-licensed by its author and credited in `skills/swift/README.md`; bodies are unchanged, frontmatter is adapted to the validator. The set now stands at **154 skills across ten plugins**.
+
 ## [0.10.0] — 2026-10-23
 
 ### Added
