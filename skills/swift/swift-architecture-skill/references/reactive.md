@@ -1,0 +1,490 @@
+# Reactive Architecture Playbook (Swift + Combine/RxSwift)
+
+Use this reference for stream-driven features (search, live updates, real-time feeds).
+
+## Contents
+- [Core Philosophy](#core-philosophy)
+- [Default Path](#default-path)
+- [Reactive-First vs Async-First](#reactive-first-vs-async-first)
+- [Canonical Combine Pattern](#canonical-combine-pattern)
+- [UI Integration by Stack](#ui-integration-by-stack)
+- [Advanced Variants](#advanced-variants)
+- [Operator Guidance](#operator-guidance)
+- [RxSwift Mapping Notes](#rxswift-mapping-notes)
+- [Error Handling Pattern](#error-handling-pattern)
+- [Migration Notes](#migration-notes)
+- [Anti-Patterns and Fixes](#anti-patterns-and-fixes)
+- [Testing Strategy](#testing-strategy)
+- [When to Use Reactive Architecture](#when-to-use-reactive-architecture)
+- [PR Review Checklist](#pr-review-checklist)
+
+## Core Philosophy
+
+Model inputs, transforms, and outputs as streams.
+
+```text
+Input -> Publisher/Observable chain -> State -> UI
+```
+
+Keep stream composition in presentation or a dedicated reactive layer, not in views.
+
+## Default Path
+
+Choose one primary reactive model per feature: reactive-first pipeline or async/await-first with reactive edges. Start with one input stream, one transformation chain, one state output, and one lifecycle-owned cancellation container, owned by the ViewModel/Presenter (never the view). Add operators only when needed by behavior.
+
+## Reactive-First vs Async-First
+
+- **Reactive-first**: domain interactions are naturally streams (live feeds, websockets, rapid input pipelines). Use publishers/observables end-to-end in presentation.
+- **Async-first with reactive edges**: request/response is mostly imperative async work, with limited stream points (search input, connectivity, notifications). Keep core logic async/await and bridge only edge signals reactively.
+
+Pick one approach per feature and document it to avoid mixed mental models.
+
+## Canonical Combine Pattern
+
+### Modern Pattern (iOS 17+ / `@Observable`)
+
+Use `@Observable` for SwiftUI-first features. Properties are tracked at the call site — views only re-render when the specific properties they read change. Expose mutable state as plain properties so views can bind directly via `@Bindable`.
+
+```swift
+@MainActor
+@Observable
+final class SearchViewModel {
+    var query = "" {
+        didSet { debounceSearch() }
+    }
+    private(set) var results: [String] = []
+
+    private let service: SearchService
+    private var searchTask: Task<Void, Never>?
+
+    init(service: SearchService) {
+        self.service = service
+    }
+
+    private func debounceSearch() {
+        searchTask?.cancel()
+        guard !query.isEmpty else {
+            results = []
+            return
+        }
+        let current = query
+        searchTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            do {
+                results = try await service.search(current)
+            } catch is CancellationError {
+                // Ignore cancellation.
+            } catch {
+                results = []
+            }
+        }
+    }
+
+    deinit {
+        searchTask?.cancel()
+    }
+}
+```
+
+`didSet` triggers side effects on property mutation, so no imperative `queryChanged` method is needed. For the general `@Observable` vs `ObservableObject` differences, see `references/observation.md`.
+
+When you need Combine operators (complex merges, `combineLatest`, `switchToLatest`), keep pipelines inside the `@Observable` class and assign results to tracked properties:
+
+```swift
+import Combine
+
+@MainActor
+@Observable
+final class LiveFeedViewModel {
+    private(set) var items: [FeedItem] = []
+    private(set) var isConnected = false
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init(feed: LiveFeedService) {
+        feed.items
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.items = $0 }
+            .store(in: &cancellables)
+        feed.connectionStatus
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.isConnected = $0 }
+            .store(in: &cancellables)
+    }
+}
+```
+
+### Legacy Pattern (iOS 16 and earlier / `ObservableObject`)
+
+Use when targeting iOS 16 or when the model must expose `@Published` publishers to UIKit subscribers or other Combine chains.
+
+```swift
+final class SearchViewModel<S: Scheduler>: ObservableObject
+where S.SchedulerTimeType == DispatchQueue.SchedulerTimeType {
+    @Published var query = ""
+    @Published private(set) var results: [String] = []
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init(service: SearchService, scheduler: S) {
+        $query
+            .debounce(for: .milliseconds(300), scheduler: scheduler)
+            .removeDuplicates()
+            .map { query in
+                service.search(query)
+                    .replaceError(with: [])
+            }
+            .switchToLatest()
+            .receive(on: scheduler)
+            .sink { [weak self] values in
+                self?.results = values
+            }
+            .store(in: &cancellables)
+    }
+}
+```
+
+In production, pass `DispatchQueue.main` as the scheduler.
+
+Rules:
+- debounce user text input
+- remove duplicates where meaningful
+- hop to main thread before UI-bound state writes
+- keep cancellables tied to lifecycle
+
+## UI Integration by Stack
+
+### SwiftUI Pattern
+
+- Keep operator chains in `@Observable` (iOS 17+) or `ObservableObject` types, not in `View`.
+- Bind UI input (`TextField`, toggle, selection) to model properties.
+
+With `@Observable` (iOS 17+):
+
+```swift
+struct SearchView: View {
+    @State private var viewModel: SearchViewModel
+
+    init(viewModel: SearchViewModel) {
+        _viewModel = State(wrappedValue: viewModel)
+    }
+
+    var body: some View {
+        @Bindable var viewModel = viewModel
+
+        List(viewModel.results, id: \.self) { result in
+            Text(result)
+        }
+        .searchable(text: $viewModel.query)
+    }
+}
+```
+
+With `ObservableObject` (iOS 16):
+
+```swift
+struct SearchView: View {
+    @StateObject private var viewModel: SearchViewModel<DispatchQueue>
+
+    var body: some View {
+        List(viewModel.results, id: \.self) { result in
+            Text(result)
+        }
+        .searchable(text: $viewModel.query)
+    }
+}
+```
+
+### UIKit Pattern (Combine)
+
+- Keep pipelines in Presenter/ViewModel.
+- Map delegate/target-action callbacks into input subjects.
+- Render from a single state subscription.
+
+```swift
+import Combine
+import UIKit
+
+@MainActor
+final class SearchPresenter<S: Scheduler> where S.SchedulerTimeType == DispatchQueue.SchedulerTimeType {
+    let state = CurrentValueSubject<SearchResultState, Never>(.loaded([]))
+    private let query = PassthroughSubject<String, Never>()
+    private var cancellables = Set<AnyCancellable>()
+
+    init(service: SearchService, scheduler: S) {
+        query
+            .debounce(for: .milliseconds(300), scheduler: scheduler)
+            .removeDuplicates()
+            .map { value in
+                service.search(value)
+                    .map(SearchResultState.loaded)
+                    .catch { Just(.failed(userMessage(for: $0))) }
+            }
+            .switchToLatest()
+            .sink { [weak self] in self?.state.send($0) }
+            .store(in: &cancellables)
+    }
+
+    func queryChanged(_ text: String) { query.send(text) }
+}
+
+// In production, pass DispatchQueue.main as the scheduler.
+
+final class SearchViewController: UIViewController, UISearchBarDelegate {
+    private let presenter: SearchPresenter<DispatchQueue>
+    private var cancellables = Set<AnyCancellable>()
+
+    init(presenter: SearchPresenter<DispatchQueue>) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { return nil }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        presenter.state
+            .sink { [weak self] in self?.render($0) }
+            .store(in: &cancellables)
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        presenter.queryChanged(searchText)
+    }
+
+    private func render(_ state: SearchResultState) {
+        // Render labels/list/error from stream state.
+    }
+}
+```
+
+## Advanced Variants
+
+- Multi-stream composition (`combineLatest`, merged refresh triggers)
+- Shared side-effect streams with `share`/multicast
+- Backpressure/throttling for high-frequency event sources
+
+## Operator Guidance
+
+- `debounce`: stabilize noisy user input (search fields)
+- `throttle`: limit high-frequency events (scroll, sensor)
+- `flatMap`: merge concurrent async work when all responses matter
+- `switchToLatest`: keep only newest request (typeahead/search)
+- `share`: avoid duplicate side effects for multiple subscribers
+- `catch`: recover from recoverable errors with fallback streams
+
+Prefer `switchToLatest` over nested subscriptions for request replacement flows.
+
+## RxSwift Mapping Notes
+
+Combine and RxSwift mapping:
+- `AnyPublisher` <-> `Observable`
+- `AnyCancellable` <-> `DisposeBag`
+- `receive(on:)` <-> `observe(on:)`
+- `subscribe(on:)` semantics should be applied intentionally to offload heavy work
+
+## Error Handling Pattern
+
+Recover in stream boundaries and expose user-safe state:
+
+```swift
+protocol SearchService {
+    func search(_ query: String) -> AnyPublisher<[String], Error>
+}
+
+enum SearchResultState: Equatable {
+    case loaded([String])
+    case failed(String)
+}
+
+func searchState(
+    query: String,
+    service: SearchService
+) -> AnyPublisher<SearchResultState, Never> {
+    service.search(query)
+        .map(SearchResultState.loaded)
+        .catch { Just(.failed(userMessage(for: $0))) }
+        .eraseToAnyPublisher()
+}
+```
+
+For transient failures, prefer fallback state over terminating the stream.
+
+## Migration Notes
+
+- From callback-heavy code: first centralize input and output streams in Presenter/ViewModel.
+- From async-only MVVM: add reactive edges only where event composition is the real complexity driver.
+- Avoid partial operator chains spread across view and model layers during migration.
+
+## Anti-Patterns and Fixes
+
+1. Nested subscriptions:
+- Smell: subscribe inside subscribe, difficult cancellation and reasoning.
+- Fix: compose with `flatMap`/`switchToLatest`.
+
+2. Missing cancellation/disposal:
+- Smell: stream continues after screen deallocation or rebind.
+- Fix: store `AnyCancellable` or use `DisposeBag` lifecycle correctly.
+
+3. Business logic in view:
+- Smell: view constructs pipelines and calls services directly.
+- Fix: move stream orchestration to Presenter/ViewModel layer.
+
+4. UI thread violations:
+- Smell: publishing UI-bound state off main thread.
+- Fix: apply `receive(on:)` / `observe(on:)` before UI mutations.
+
+5. Unbounded fan-out:
+- Smell: many subscribers trigger duplicate network calls.
+- Fix: use `share`/multicasting where side effects should be single-execution.
+
+## Testing Strategy
+
+### Minimum Bar
+
+- Deterministic success sequence test for one representative input stream.
+- One timing/cancellation test (`debounce`, `switchToLatest`, or equivalent).
+- One error-fallback test that proves stream resilience.
+
+Test stream behavior deterministically:
+- input -> expected output transitions
+- debounce/throttle behavior with controlled schedulers
+
+Rules:
+- inject schedulers/time providers for tests
+- avoid real-time sleeps when possible
+- assert emitted state sequence, not internal operator details
+- if using `CombineSchedulers` for `DispatchQueue.test`, treat it as a test-only dependency and ask before adding it to a project
+- if no test scheduler dependency is allowed, extract pure transformation functions and test them separately from debounce/throttle timing
+
+```swift
+import Combine
+import CombineSchedulers
+import XCTest
+
+final class SearchViewModelTests: XCTestCase {
+    func test_queryEmitsResults() {
+        let subject = PassthroughSubject<[String], Error>()
+        let stubService = StubSearchService { _ in subject.eraseToAnyPublisher() }
+        // Test-only dependency: Point-Free's CombineSchedulers package.
+        let scheduler = DispatchQueue.test
+        let vm = SearchViewModel(service: stubService, scheduler: scheduler.eraseToAnyScheduler())
+
+        var collected: [[String]] = []
+        let cancellable = vm.$results
+            .dropFirst()
+            .sink { collected.append($0) }
+
+        vm.query = "swift"
+
+        // Advance past debounce interval.
+        scheduler.advance(by: .milliseconds(300))
+
+        // Simulate service response.
+        subject.send(["SwiftUI", "Swift"])
+        subject.send(completion: .finished)
+
+        // Advance to process receive(on:).
+        scheduler.advance()
+
+        XCTAssertEqual(collected, [["SwiftUI", "Swift"]])
+        cancellable.cancel()
+    }
+
+    func test_errorFallsBackToEmptyResults() {
+        let subject = PassthroughSubject<[String], Error>()
+        let stubService = StubSearchService { _ in subject.eraseToAnyPublisher() }
+        let scheduler = DispatchQueue.test
+        let vm = SearchViewModel(service: stubService, scheduler: scheduler.eraseToAnyScheduler())
+
+        var collected: [[String]] = []
+        let cancellable = vm.$results
+            .dropFirst()
+            .sink { collected.append($0) }
+
+        vm.query = "swift"
+        scheduler.advance(by: .milliseconds(300))
+
+        subject.send(completion: .failure(TestError.offline))
+        scheduler.advance()
+
+        XCTAssertEqual(collected, [[]])
+        cancellable.cancel()
+    }
+
+    func test_switchToLatest_ignoresStaleInFlightResponse() {
+        let first = PassthroughSubject<[String], Error>()
+        let second = PassthroughSubject<[String], Error>()
+        let stubService = StubSearchService { query in
+            switch query {
+            case "sw":
+                return first.eraseToAnyPublisher()
+            case "swift":
+                return second.eraseToAnyPublisher()
+            default:
+                return Empty<[String], Error>().eraseToAnyPublisher()
+            }
+        }
+        let scheduler = DispatchQueue.test
+        let vm = SearchViewModel(service: stubService, scheduler: scheduler.eraseToAnyScheduler())
+
+        var collected: [[String]] = []
+        let cancellable = vm.$results
+            .dropFirst()
+            .sink { collected.append($0) }
+
+        vm.query = "sw"
+        scheduler.advance(by: .milliseconds(300))
+
+        vm.query = "swift"
+        scheduler.advance(by: .milliseconds(300))
+
+        // This should be ignored because a newer query replaced the subscription.
+        first.send(["stale"])
+        second.send(["fresh"])
+        scheduler.advance()
+
+        XCTAssertEqual(collected, [["fresh"]])
+        cancellable.cancel()
+    }
+}
+
+struct StubSearchService: SearchService {
+    let searchHandler: (String) -> AnyPublisher<[String], Error>
+    func search(_ query: String) -> AnyPublisher<[String], Error> {
+        searchHandler(query)
+    }
+}
+
+private enum TestError: Error {
+    case offline
+}
+```
+
+The canonical `SearchViewModel` already supports scheduler injection for tests.
+
+## When to Use Reactive Architecture
+
+Use Reactive architecture when:
+- the feature is event-heavy and stream-oriented
+- real-time updates and transformations are core behavior
+- composable async pipelines are clearer than imperative callbacks
+
+Switch or pair when:
+- behavior is mostly request/response: use `references/mvvm.md` with plain async/await state updates
+- strict state machines and reducer determinism become primary: move to `references/mvi.md` or `references/tca.md`
+
+For cross-architecture disqualifiers and migration triggers, see `references/selection-guide.md`.
+
+## PR Review Checklist
+
+- Streams are composed without nested subscriptions.
+- Cancellation/disposal is tied to screen/module lifetimes.
+- UI-bound updates are marshaled to main thread, and scheduler choices are explicit.
+- Shared pipelines do not duplicate side effects across multiple subscribers (`share`/multicast where needed).
+- Operators match intent (`debounce`, `throttle`, `switchToLatest`, `share`).
+- Views/controllers do not hold business pipeline logic.
+- Error handling keeps UX resilient for transient failures.
+- Tests meet the minimum bar in Testing Strategy.

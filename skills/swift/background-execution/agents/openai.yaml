@@ -1,0 +1,8 @@
+interface:
+  display_name: "Background Execution"
+  short_description: "Reviews and writes Swift background-execution code."
+  brand_color: "#F05138"
+  default_prompt: "Use $background-execution to review my project's background-execution code."
+
+policy:
+  allow_implicit_invocation: true
