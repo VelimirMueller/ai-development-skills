@@ -1,4 +1,5 @@
-# Fleet standard ci.yml (library tier, public). Stages call VelimirMueller/fleet-workflows at v0.0.2.
+# Fleet standard ci.yml (library tier, public). Stages call VelimirMueller/fleet-workflows at the
+# release tag v0.0.2: fleet policy pins own repos by tag (zizmor ref-pin) and third-party actions by SHA.
 name: ci
 
 on:
