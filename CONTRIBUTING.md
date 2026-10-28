@@ -28,7 +28,7 @@ the top `CHANGELOG.md` entry; that each catalogue is owned by exactly one plugin
 dependencies resolve; that every `SKILL.md` has a `name` and a description starting with
 "Use when", at most 300 characters, and no unquoted `": "`; that skill names are unique
 across catalogues; and that every relative `.md` link under `skills/` resolves. Keep it
-green: the `validate` workflow in `.github/workflows/validate.yml` runs it on every pull
+green: the `unit` stage of `.github/workflows/ci.yml` runs it on every pull
 request and blocks on failure.
 
 ## Anatomy of a skill
