@@ -37,7 +37,7 @@ jobs:
       - name: Detect code changes
         id: filter
         if: github.event_name == 'pull_request'
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           predicate-quantifier: every
           # The skills are Markdown, so Markdown changes run CI here.
@@ -51,7 +51,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-lint.yml@v0.0.2
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-lint.yml@v0.0.4
     with:
       stack: generic
       # bash -n and shellcheck on every tracked shell script (ubuntu-latest ships shellcheck).
@@ -66,7 +66,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-unit.yml@v0.0.2
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-unit.yml@v0.0.4
     with:
       stack: generic
       # The marketplace validator: plugin entries, version sync, SKILL.md frontmatter, links.
@@ -79,7 +79,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.e2e }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v0.0.2
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-e2e.yml@v0.0.4
     with:
       stack: generic
       # No e2e suite: the e2e input of a dispatch has nothing to run here.
@@ -90,7 +90,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.changes.outputs.code == 'true' }}
     permissions:
       contents: read
-    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-build.yml@v0.0.2
+    uses: VelimirMueller/fleet-workflows/.github/workflows/_ci-build.yml@v0.0.4
     with:
       stack: generic
       # No build step: archive the tracked tree as Claude Code installs it, and check the manifest is in it.
